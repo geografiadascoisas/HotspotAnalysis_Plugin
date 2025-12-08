@@ -1,13 +1,24 @@
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
- HotspotAnalysis
+ HotspotAnalysis v3.0.1
                                  A QGIS plugin
- This plugin implements the statistics needed for the Hotspot Analysis
+ Geographical cluster detection using LISA statistics (Getis-Ord Gi*,
+ Local Moran’s I and Bivariate Moran), modernized for QGIS 3.x with
+ libpysal/esda.
                              -------------------
         begin                : 2017-02-22
-        copyright            : (C) 2017 by Daniele Oxoli, Gabriele Prestifilippo, Mayra Zurbaràn, Stanly Shaji / Politecnico Di Milano
-        email                : daniele.oxoli@polimi.it
+        updated              : 2025-08-12
+        maintainer           : Abimael Cereda Junior
+        email                : ceredajunior@geografiadascoisas.com.br
+
+        original authors     : 
+            Daniele Oxoli
+            Gabriele Prestifilippo
+            Mayra Zurbaràn
+            Stanly Shaji
+            Politecnico di Milano
+
         git sha              : $Format:%H$
  ***************************************************************************/
 
@@ -23,13 +34,11 @@
 """
 
 
-# noinspection PyPep8Naming
 def classFactory(iface):  # pylint: disable=invalid-name
-    """Load HotspotAnalysis class from file HotspotAnalysis.
+    """Load HotspotAnalysis class from file hotspot_analysis.
 
     :param iface: A QGIS interface instance.
     :type iface: QgsInterface
     """
-    #
     from .hotspot_analysis import HotspotAnalysis
     return HotspotAnalysis(iface)
