@@ -53,9 +53,9 @@ This modernized version enhances stability, correctness and performance, and is 
 
 ## Installation (Windows, Linux, macOS)
 
-1. Download the plugin ZIP package (when the release is published):
+1. Download the plugin ZIP package (choose the release):
    ```
-   https://github.com/geografiadascoisas/HotSpotAnalysis_Plugin/releases/latest/download/HotSpotAnalysis_v3.zip
+   https://github.com/geografiadascoisas/HotSpotAnalysis_Plugin/releases/
    ```
 
 2. In QGIS:
