@@ -1,57 +1,62 @@
-# This file contains metadata for your plugin. Since 
-# version 2.0 of QGIS this is the proper way to supply 
-# information about a plugin. The old method of 
-# embedding metadata in __init__.py will 
-# is no longer supported since version 2.0.
-
-# This file should be included when you package your plugin.# Mandatory items:
+# This file contains metadata for your plugin.
+# Since QGIS 2.0 this is the official structure for plugin metadata.
 
 [general]
-name=Hotspot Analysis
+name=Hotspot Analysis v3.0.1
 qgisMinimumVersion=3.0
-description=This plugin implements LISA statistics needed for Hotspot and Cluster Analysis
-version=2.0.0
-author=Daniele Oxoli & Gabriele Prestifilippo
-email=daniele.oxoli@polimi.it
+description=Geographical cluster detection using LISA statistics (Getis-Ord Gi* and Local Moran’s I), fully modernized for QGIS 3.x with libpysal/esda.
+version=3.0.1
+author=Abimael Cereda Junior (maintainer), based on original work by Daniele Oxoli, Gabriele Prestifilippo, Mayra Zurbaràn, and Stanly Shaji
+email=ceredajunior@geografiadascoisas.com.br
 
-about=The Plugin implements Local Indicators of Spatial Association (LISA) statistics to perform hotspot (Getis-Ord Gi*) and clusters (Moran's I) analysis and links them to maps. Input data must be a shapefile of points or polygons with an associated projected coordinate system and (at least) one numeric attribute. The plugin requires PySAL 2 (see the repository for installation instruction).
+about=This plugin computes Local Indicators of Spatial Association (LISA) to detect statistically significant geographical clusters. Supported methods include Getis-Ord Gi*, Univariate Local Moran’s I, and Bivariate Local Moran’s I. Version 3 modernizes the entire analytical engine using libpysal/esda, ensuring correct Z-scores, p-values, q-values, robust KDTree distance estimation, improved matrix standardization, stability fixes for QGIS 3.x, and safer output generation.
 
-tracker=https://github.com/danioxoli/HotSpotAnalysis_Plugin/issues
-repository=https://github.com/danioxoli/HotSpotAnalysis_Plugin
-# End of mandatory metadata
+tracker=https://github.com/geografiadascoisas/HotSpotAnalysis_Plugin/issues
+repository=https://github.com/geografiadascoisas/HotSpotAnalysis_Plugin
+homepage=https://github.com/geografiadascoisas/HotSpotAnalysis_Plugin
 
-# Recommended items:
+# Changelog (all versions must be listed under a single key)
+changelog=
+    3.0.1
+        - Modernization to libpysal/esda (replacement of deprecated PySAL imports)
+        - Rewritten Z-score and p-value computation for Getis-Ord Gi* and Local Moran
+        - Correct handling of two-tailed p-values and removal of sign artifacts
+        - q-value applied only for Local Moran analyses (never for Gi*)
+        - New KDTree-based distance threshold computation with O(n²) fallback
+        - Stabilized construction of KNN and Queen weights and standardization modes
+        - Improved write_file(): safer attribute output, NaN checks, encoding fixes
+        - Added stdout/stderr guards to avoid QGIS crashes on Windows systems
+        - GUI fixes and attribute filtering to show only numeric fields when required
+        - General code cleanup and removal of obsolete legacy paths
 
-# Uncomment the following line and add your changelog:
-changelog=2.0.0
-    - Port to PySAL 2
-    - Data import fix for QGIS 3.16
-# Uncomment the following line and add your changelog:
-#changelog=1.0.4
-#    - Port to PySAL 2
-#changelog=1.0.3
-#    - code cleaning
-#changelog=1.0.2
-#    - Enhancement to Gi* computation with negative values
-#    - Icon fixed
-#changelog=1.0.1
-#    - QGIS 3 plugin version 
-#    - Minor bugs fixed 
-#changelog=0.3
-#    - Enabled K-nearest neighbors spatial weights matrix
-#     - Minor bugs fixed 
-#changelog=0.2
-#    - Enabled Anselin Local Moran's I and Bivariate Local Moran computation
-#    - Fixed crashing while adding/removing layer from the QGIS layer list
+    2.0.0
+        - Port to PySAL 2
+        - Data import fix for QGIS 3.16
 
-# Tags are comma separated with spaces allowed
-tags=hotspot, Python, ESDA, vector
+    1.0.4
+        - Port to PySAL 2
 
-homepage=https://github.com/danioxoli/HotSpotAnalysis_Plugin
+    1.0.3
+        - Code cleaning
+
+    1.0.2
+        - Enhancements to Gi* computation with negative values
+        - Icon fixed
+
+    1.0.1
+        - QGIS 3 plugin version
+        - Minor bugs fixed
+
+    0.3
+        - Enabled K-nearest neighbors spatial weights matrix
+        - Minor bugs fixed
+
+    0.2
+        - Enabled Anselin Local Moran's I and Bivariate Local Moran computation
+
+tags=hotspot, spatial analysis, LISA, cluster detection, Moran, Getis-Ord, libpysal, esda, geography
 category=Vector
 icon=hotspot.png
-# experimental flag
-experimental=True
 
-# deprecated flag (applies to the whole plugin, not just a single version)
+experimental=False
 deprecated=False
