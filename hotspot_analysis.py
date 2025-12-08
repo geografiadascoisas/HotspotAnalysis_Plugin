@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
- Hotspot Analysis v3.25 (enhanced 2025)
+ Hotspot Analysis v3.0.1 (enhanced 2025)
                                  A QGIS Plugin
 
  This plugin implements Local Indicators of Spatial Association (LISA),
