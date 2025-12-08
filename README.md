@@ -1,3 +1,135 @@
+# Hotspot Analysis v3: Geographical cluster detection
+
+Modernized and maintained by **Abimael Cereda Junior**  
+Email: **ceredajunior@geografiadascoisas.com.br**  
+Repository: https://github.com/geografiadascoisas/HotSpotAnalysis_Plugin  
+Issue tracker: https://github.com/geografiadascoisas/HotSpotAnalysis_Plugin/issues
+
+---
+
+## Overview
+
+Hotspot Analysis v3 is a modernized and extended version of the original QGIS Hotspot Analysis plugin, implementing **Local Indicators of Spatial Association (LISA)** using the current Python libraries **libpysal** and **esda**.  
+This release updates statistical methods, spatial weight construction, computational stability and compatibility with QGIS 3.x environments.
+
+The plugin computes:
+
+- **Getis-Ord Gi\***  
+  Detection of significant hotspots (high–high clusters) and coldspots (low–low clusters).
+
+- **Local Moran’s I (univariate)**  
+  Identification of local autocorrelation and spatial cluster/outlier patterns (HH, LL, HL, LH).
+
+- **Local Moran’s I (bivariate)**  
+  Measures cross-variable local association between two spatial attributes.
+
+The output layer includes:
+
+- `Z-score`  
+- `p-value`  
+- `q-value` (for Moran’s I only)  
+- All original attributes preserved
+
+This modernized version enhances stability, correctness and performance, and is suitable for scientific analysis, professional GIS workflows, and educational use in spatial statistics.
+
+---
+
+## Key Improvements in Version 3.x
+
+- Full migration from deprecated PySAL imports to **libpysal** and **esda**
+- Rewritten and validated Z-score and p-value calculations for Gi\* and Moran
+- Proper handling of q-values (Moran only)
+- **KDTree-based** distance threshold estimation (with O(n²) fallback)
+- Stable construction of:
+  - Fixed Distance Band weights  
+  - K-nearest neighbors (KNN)  
+  - Queen contiguity weights
+- Improved output layer writer with robust NaN handling
+- Only numeric fields are offered for analysis
+- Better stability on Windows (stdout/stderr guards)
+- General code cleanup and removal of legacy logic
+
+---
+
+## Installation (Windows, Linux, macOS)
+
+1. Download the plugin ZIP package (when the release is published):
+   ```
+   https://github.com/geografiadascoisas/HotSpotAnalysis_Plugin/releases/latest/download/HotSpotAnalysis_v3.zip
+   ```
+
+2. In QGIS:
+   ```
+   Plugins → Install from ZIP
+   ```
+
+3. Enable the plugin:
+   ```
+   Plugins → Manage and Install Plugins → Hotspot Analysis
+   ```
+
+The plugin automatically uses SciPy KDTree optimizations if available.  
+No manual installation of PySAL/libpysal/esda is required.
+
+---
+
+## Methodology
+
+Hotspot Analysis v3 implements standard **Local Indicators of Spatial Association (LISA)**:
+
+- **Getis and Ord (1992, 1996)** – Local Gi\* hotspot statistic  
+- **Anselin (1995)** – Local Moran’s I  
+- **Wartenberg (1985)** – Bivariate Moran  
+- **Anselin et al. (2002)** – Local spatial autocorrelation frameworks
+
+Supported spatial weights:
+
+- **Points**  
+  - Fixed Distance Band  
+  - KNN  
+- **Polygons**  
+  - Queen contiguity (order 1)
+
+Weights are computed using libpysal’s modern API and, when possible, accelerated using SciPy KDTree.
+
+---
+
+## Output Fields
+
+| Field     | Description |
+|-----------|-------------|
+| `Z-score` | Standardized measure of local association |
+| `p-value` | Two-tailed significance value |
+| `q-value` | Moran quadrant (HH, LL, HL, LH) |
+
+---
+
+## References
+
+**Statistical Foundations**  
+- Getis, A.; Ord, J.K. (1992). *The Analysis of Spatial Association by Use of Distance Statistics*.  
+- Getis, A.; Ord, J.K. (1996). *Local Spatial Statistics: An Overview*.  
+- Anselin, L. (1995). *Local Indicators of Spatial Association—LISA*.  
+- Wartenberg, D. (1985). *Multivariate Spatial Correlation*.  
+- Anselin, L. et al. (2002). *Local Spatial Autocorrelation*.  
+
+**Methodological Background**  
+- de Smith, M., Goodchild, M., Longley, P. (2015). *Geospatial Analysis* (5th edition).  
+
+**Original Plugin Citation**  
+_Oxoli, D., Prestifilippo, G., Bertocchi, D., Zurbaràn, M. (2017).  
+Enabling spatial autocorrelation mapping in QGIS: The Hotspot Analysis Plugin._  
+GEAM. GEOINGEGNERIA AMBIENTALE E MINERARIA, 151(2), 45–50.
+
+---
+
+# Legacy Documentation (2016–2021)
+
+Below is the preserved original documentation for historical reference.  
+Some of the instructions, dependencies, or installation steps may no longer apply.
+
+---
+
 # Hotspot Analysis Plugin for QGIS
 
 **THIS PLUGIN VERSION IS BASED ON PYSAL >= 2.0** ([previous version here])
@@ -201,7 +333,7 @@ ___
  - Test on the new functionalities addedd
  - improve GUI appereance
  - Update User guide and documentation for Anselin Local Moran's I and Bivariate Local Moran computation
- 
+
 ___
 
 Bug tracker and Wiki
