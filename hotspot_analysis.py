@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
- Hotspot Analysis v3.0.1 (enhanced 2025)
+ Hotspot Analysis v3.0.2 (enhanced 2025)
                                  A QGIS Plugin
 
  This plugin implements Local Indicators of Spatial Association (LISA),
@@ -18,11 +18,10 @@
         email (original)     : daniele.oxoli@polimi.it
         maintenance (2025)   : Abimael Cereda Junior
         email (2025)         : ceredajunior@geografiadascoisas.com.br
-        version              : 3.0.1
-        date                 : 2025-12-07
+        version              : 3.0.2
+        date                 : 2025-12-09
         git sha              : $Format:%H$
  ***************************************************************************/
-
 
 /***************************************************************************
  *                                                                         *
@@ -55,14 +54,24 @@ import sys
 import io as _io
 import numpy
 
-from esda import G_Local, Moran_Local, Moran_Local_BV, Moran
-from libpysal.weights.distance import DistanceBand
-from libpysal.weights.contiguity import Queen
-from libpysal.weights import KNN
-
 from osgeo import ogr, gdal
 
-# >>> QGIS stderr/stdout guard (somente se estiverem None, sem suprimir globalmente)
+# ----------------------------------------------------------------------
+# Dependency guard for esda / libpysal (blocker)
+# ----------------------------------------------------------------------
+ESDA_AVAILABLE = True
+ESDA_IMPORT_ERROR = ""
+
+try:
+    from esda import G_Local, Moran_Local, Moran_Local_BV, Moran
+    from libpysal.weights.distance import DistanceBand
+    from libpysal.weights.contiguity import Queen
+    from libpysal.weights import KNN
+except ImportError as e:
+    ESDA_AVAILABLE = False
+    ESDA_IMPORT_ERROR = str(e)
+
+# >>> QGIS stderr/stdout guard (only if they are None, without deleting them globally)
 if getattr(sys, 'stderr', None) is None:
     try:
         sys.stderr = sys.__stderr__
@@ -82,6 +91,39 @@ type = 0
 
 def pr(self, msg):
     QMessageBox.information(self.iface.mainWindow(), self.tr("Debug"), msg)
+
+
+def _hs_dependency_help_text(tr_func):
+    """
+    Standard help message for installing libpysal/esda,
+    with specific instructions for each operating system.
+    """
+    import sys as _sys
+
+    base = tr_func(
+        "The Hotspot Analysis v3 plugin requires the Python packages "
+        "'libpysal' and 'esda' installed in the same Python environment "
+        "used by QGIS.\n\n"
+    )
+
+    if _sys.platform.startswith("win"):
+        extra = tr_func(
+            "On Windows, open the 'OSGeo4W Shell' that comes with QGIS and run:\n"
+            "  python -m pip install --user libpysal esda\n"
+        )
+    elif _sys.platform == "darwin":
+        extra = tr_func(
+            "On macOS, open the Terminal and run:\n"
+            "  /Applications/QGIS.app/Contents/MacOS/bin/python3 "
+            "-m pip install --user libpysal esda\n"
+        )
+    else:
+        extra = tr_func(
+            "On Linux, use the same Python interpreter that QGIS uses and run:\n"
+            "  python3 -m pip install --user libpysal esda\n"
+        )
+
+    return base + extra
 
 
 class HotspotAnalysis(object):
@@ -284,18 +326,18 @@ class HotspotAnalysis(object):
         self.dlg.comboBox_C_2.clear()
 
     def write_file(self, filename, statistics, layerName, inLayer, inDataSource, y, threshold1):
-        """Escreve shapefile de saída. Fluxos distintos para Getis-Ord e Moran."""
+        """Writes output shapefile. Separate flows for Getis-Ord and Moran."""
         import os
 
         outDriver = ogr.GetDriverByName("ESRI Shapefile")
 
-        # layerName é string no plugin original
+        # layerName is a string in the original plugin
         base = layerName.split('.')
         if base:
             base.pop()
         outShapefile = filename + ".shp"
 
-        # remove saída anterior
+        # remove previous output
         if os.path.exists(outShapefile):
             try:
                 outDriver.DeleteDataSource(outShapefile)
@@ -309,13 +351,13 @@ class HotspotAnalysis(object):
             inLayer.GetLayerDefn().GetGeomType()
         )
 
-        # copia campos originais
+        # copy original fields
         inLayerDefn = inLayer.GetLayerDefn()
         for i in range(0, inLayerDefn.GetFieldCount()):
             fieldDefn = inLayerDefn.GetFieldDefn(i)
             outLayer.CreateField(fieldDefn)
 
-        # campos de saída comuns
+        # common output fields
         Z_field = ogr.FieldDefn("Z-score", ogr.OFTReal)
         Z_field.SetWidth(15)
         Z_field.SetPrecision(10)
@@ -326,7 +368,7 @@ class HotspotAnalysis(object):
         p_field.SetPrecision(10)
         outLayer.CreateField(p_field)
 
-        # q-value só para Moran (local univariado/bivariado), nunca para Getis-Ord
+        # q-value only for Moran (univariate/bivariate local), never for Getis-Ord
         if (self.dlg.checkBox_moran.isChecked() == 1 or self.dlg.checkBox_moranBi.isChecked() == 1):
             q_field = ogr.FieldDefn("q-value", ogr.OFTInteger)
             q_field.SetWidth(10)
@@ -337,29 +379,29 @@ class HotspotAnalysis(object):
 
         use_perm = (getattr(statistics, "permutations", 0) > 0)
 
-        # Garantir início da leitura
+        # Ensure reading starts
         inLayer.ResetReading()
 
         for i, inFeature in enumerate(inLayer):
             outFeature = ogr.Feature(outLayerDefn)
 
-            # copia atributos
+            # copy attributes
             for j in range(0, inLayerDefn.GetFieldCount()):
                 outFeature.SetField(
                     outLayerDefn.GetFieldDefn(j).GetNameRef(),
                     inFeature.GetField(j)
                 )
 
-            # geometria
+            # geometry
             geom = inFeature.GetGeometryRef()
             outFeature.SetGeometry(geom.Clone() if geom is not None else None)
 
             if self.dlg.checkBox_gi.isChecked() == 1:
                 # -------- Getis-Ord G* --------
-                # atributos disponíveis em G_Local:
-                #   - Zs (aprox. normal)
-                #   - p_sim (se permutations>0) ou p_norm (se normal)
-                #   - NÃO há 'q' em Getis-Ord
+                # attributes available in G_Local:
+                #   - Zs (approx. normal)
+                #   - p_sim (if permutations>0) or p_norm (if normal)
+                #   - There is NO 'q' in Getis-Ord
                 try:
                     if use_perm and hasattr(statistics, 'p_sim'):
                         pval = statistics.p_sim
@@ -385,7 +427,7 @@ class HotspotAnalysis(object):
                     outFeature.SetField("Z-score", float('nan'))
                     outFeature.SetField("p-value", float('nan'))
 
-            else:  # -------- Moran Local (uni/bivariado) --------
+            else:  # -------- Moran Local (uni/bivariate) --------
                 try:
                     from math import erfc, sqrt
 
@@ -424,7 +466,7 @@ class HotspotAnalysis(object):
             outLayer.CreateFeature(outFeature)
             outFeature = None
 
-        # fecha e carrega
+        # close and load
         inDataSource.Destroy()
         outDataSource.Destroy()
 
@@ -626,11 +668,42 @@ class HotspotAnalysis(object):
     def run(self):
         """Run method that performs all the real work"""
 
-        self.clear_ui()
-        layers, layers_shp = self.loadLayerList()
-        if len(layers) == 0:
+        # 1) Statistical dependencies (blocking)
+        if not ESDA_AVAILABLE:
+            msg = _hs_dependency_help_text(self.tr)
+            if ESDA_IMPORT_ERROR:
+                msg = msg + "\n\n" + self.tr("Original error: {err}").format(
+                    err=ESDA_IMPORT_ERROR
+                )
+
+            QMessageBox.warning(
+                self.dlg,
+                self.tr("Hotspot Analysis: missing dependencies"),
+                msg,
+                QMessageBox.Ok
+            )
             return
 
+        # 2) Basic UI
+        self.clear_ui()
+        layers, layers_shp = self.loadLayerList()
+
+        # 3) No compatible layer (blocking, does not open dialog)
+        if not layers or not layers_shp:
+            QMessageBox.information(
+                self.dlg,
+                self.tr("Hotspot Analysis v3"),
+                self.tr(
+                    "To run Hotspot Analysis v3, a valid vector layer (points or "
+                    "polygons) must be loaded.\n"
+                    "The plugin supports shapefiles (.shp). No compatible layers "
+                    "in the current project."
+                ),
+                QMessageBox.Ok
+            )
+            return
+
+        # 4) Normal flow continues
         self.dlg.show()
         self.load_comboBox()
         # Run the dialog event loop
@@ -656,14 +729,14 @@ class HotspotAnalysis(object):
             global type
             type = inLayer.GetLayerDefn().GetGeomType()
 
-            # Vetor de atributos principal (y)
+            # Principal attribute vector (y)
             u = []
             inLayer.ResetReading()
             for feature in inLayer:
                 u.append(feature.GetField(C))
             y = numpy.array(u)
 
-            # Vetor secundário (x) para Moran Bivariado
+            # Secondary vector (x) for Bivariate Moran
             if self.dlg.checkBox_moranBi.isChecked() == 1:
                 v = []
                 inLayer.ResetReading()
@@ -671,7 +744,7 @@ class HotspotAnalysis(object):
                     v.append(feature.GetField(C2))
                 x = numpy.array(v)
 
-            # Construção da matriz de pesos espaciais
+            # Construction of the spatial weight matrix
             if type == 1:  # point
                 t = ()
                 inLayer.ResetReading()
@@ -682,10 +755,10 @@ class HotspotAnalysis(object):
                     xy = (geometry.GetX(), geometry.GetY())
                     t = t + (xy,)
 
-                if self.dlg.lineEditThreshold.text() and self.dlg.lineEditThreshold.text() != "":  # threshold definido
+                if self.dlg.lineEditThreshold.text() and self.dlg.lineEditThreshold.text() != "":  # defined threshold
                     threshold1 = int(self.dlg.lineEditThreshold.text())
 
-                elif self.dlg.checkBox_knn.isChecked() == 0:  # otimizar threshold (sem KNN)
+                elif self.dlg.checkBox_knn.isChecked() == 0:  # optimize threshold (without KNN)
                     mx_moran = -1000.0
                     mx_i = -1000.0
                     minT = int(self.dlg.lineEdit_minT.text())
@@ -714,15 +787,15 @@ class HotspotAnalysis(object):
             else:
                 type_w = "B"
 
-            # Permutações
+            # Permutations
             if self.dlg.checkBox_randomPerm.isChecked() == 1:
                 permutationsValue = int(self.dlg.lineEdit_random.text())
             else:
                 if self.dlg.checkBox_gi.isChecked() == 1:
-                    # Para Getis-Ord, sempre usar aproximação normal (p_norm)
+                    # For Getis-Ord, always use normal approximation (p_norm)
                     permutationsValue = 0
                 else:
-                    # Para Moran, usar permutação (mais confiável)
+                    # For Moran, use permutation (more reliable)
                     permutationsValue = 999
 
             numpy.random.seed(12345)
