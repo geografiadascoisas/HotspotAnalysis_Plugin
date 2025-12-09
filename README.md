@@ -34,6 +34,15 @@ This modernized version enhances stability, correctness and performance, and is 
 
 ---
 
+## NEW in Version 3.0.2
+- Dependency Guard (blocking): the plugin now checks for required libraries (libpysal, esda) before starting. If missing, QGIS shows a clear message and the dialog does not open.
+- Layer Guard (blocking): if the user clicks the plugin icon with no shapefile (.shp) vector layers loaded a message is displayed. The dialog will not open until the requirement is met.
+- Cross-platform installation guidance: the plugin now provides system-appropriate instructions (Windows OSGeo4W, macOS app bundle Python, Linux package Python).
+- Runtime stability improvements: hardened early-return logic; better detection of numeric fields; safer handling of NaN and missing values
+- More explicit feedback to the user
+
+---
+
 ## Key Improvements in Version 3.x
 
 - Full migration from deprecated PySAL imports to **libpysal** and **esda**
@@ -53,9 +62,41 @@ This modernized version enhances stability, correctness and performance, and is 
 
 ## Installation (Windows, Linux, macOS)
 
-1. Download the plugin ZIP package (choose the release):
+Hotspot Analysis v3.0.2 can be installed in **two ways**:
+
+1. **Directly from the official QGIS Plugin Repository** (recommended)  
+2. **Manually via ZIP package** (for offline installation or unreleased versions)
+
+Regardless of the installation method, the plugin requires the Python libraries **libpysal** and **esda**.
+
+---
+
+## 1. Install from the QGIS Plugin Repository (recommended)
+
+Inside QGIS:
+
+1. Open:
    ```
-   https://github.com/geografiadascoisas/HotSpotAnalysis_Plugin/releases/
+   Plugins → Manage and Install Plugins
+   ```
+2. Search for:
+   ```
+   Hotspot Analysis v3
+   ```
+3. Click:
+   ```
+   Install Plugin
+   ```
+
+This ensures you always receive the latest approved version published in the official QGIS repository.
+
+---
+
+## 2. Install from ZIP (offline or development version)
+
+1. Download the plugin ZIP package:
+   ```
+   https://github.com/geografiadascoisas/HotSpotAnalysis_Plugin/releases/latest/download/HotSpotAnalysis_v3.zip
    ```
 
 2. In QGIS:
@@ -68,8 +109,62 @@ This modernized version enhances stability, correctness and performance, and is 
    Plugins → Manage and Install Plugins → Hotspot Analysis
    ```
 
-The plugin automatically uses SciPy KDTree optimizations if available.  
-No manual installation of PySAL/libpysal/esda is required.
+---
+
+## 3. Required Python Dependencies
+
+Hotspot Analysis v3.0.2 requires the libraries:
+
+```
+libpysal
+esda
+```
+
+If these libraries are missing, the plugin will not start and will show a dependency warning.
+
+### Windows (OSGeo4W Shell)
+```
+o4w_env
+python3 -m pip install --user libpysal esda
+```
+
+### macOS (QGIS bundled Python)
+```
+/Applications/QGIS.app/Contents/MacOS/bin/python3 -m pip install --user libpysal esda
+```
+
+### Linux
+```
+python3 -m pip install --user libpysal esda
+```
+
+---
+
+## 4. Optional: SciPy Optimization (KDTree)
+
+If SciPy is available, the plugin automatically uses KDTree for optimized spatial distance computations.
+
+To install (optional):
+```
+pip install scipy
+```
+
+If SciPy is not installed, the plugin uses a safe O(n²) fallback.
+
+---
+
+## 5. Requirements Before Running the Plugin
+
+To execute any hotspot or LISA analysis, you must:
+
+- Load **at least one shapefile (.shp)**  
+- Use **point** or **polygon** geometry  
+- Ensure the layer is in a **projected CRS** (meters, not degrees)  
+- Have at least one **numeric attribute field**
+
+If no shapefile layer is loaded, QGIS will show:
+
+> “To run Hotspot Analysis v3, you must load at least one vector layer (point or polygon) in shapefile format.”
 
 ---
 
