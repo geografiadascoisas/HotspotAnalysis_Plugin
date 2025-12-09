@@ -2,11 +2,11 @@
 # Since QGIS 2.0 this is the official structure for plugin metadata.
 
 [general]
-name=Hotspot Analysis v3.0.1
+name=Hotspot Analysis v3
 qgisMinimumVersion=3.0
 description=Geographical cluster detection using LISA statistics (Getis-Ord Gi* and Local Moran’s I), fully modernized for QGIS 3.x with libpysal/esda.
-version=3.0.1
-author=Abimael Cereda Junior (maintainer), based on original work by Daniele Oxoli, Gabriele Prestifilippo, Mayra Zurbaràn, and Stanly Shaji
+version=3.0.2
+author=Abimael Cereda Junior (maintainer), based on original work by Daniele Oxoli, Gabriele Prestifilippo, Mayra Zurbaràn and Stanly Shaji
 email=ceredajunior@geografiadascoisas.com.br
 
 about=This plugin computes Local Indicators of Spatial Association (LISA) to detect statistically significant geographical clusters. Supported methods include Getis-Ord Gi*, Univariate Local Moran’s I, and Bivariate Local Moran’s I. Version 3 modernizes the entire analytical engine using libpysal/esda, ensuring correct Z-scores, p-values, q-values, robust KDTree distance estimation, improved matrix standardization, stability fixes for QGIS 3.x, and safer output generation.
@@ -17,6 +17,22 @@ homepage=https://github.com/geografiadascoisas/HotSpotAnalysis_Plugin
 
 # Changelog (all versions must be listed under a single key)
 changelog=
+    3.0.2
+        - Special thanks to Prof. Edson Augusto Melanda (UFSCar-Brazil) for testing and suggestions
+        - Added full dependency guard for libpysal/esda with blocking behavior
+          (plugin no longer loads the dialog when required statistical libraries are missing)
+        - Detailed cross-platform installation guidance for missing dependencies
+          (Windows OSGeo4W Shell, macOS QGIS Python, Linux QGIS Python)
+        - Added validation of project layers before opening the dialog:
+          plugin now blocks execution when no shapefile (.shp) vector layers
+          of type point or polygon are present in the project
+        - Introduced user-facing message explaining the shapefile requirement
+          and providing explicit operational guidance
+        - Hardened run() workflow to prevent silent failures and guarantee
+          proper preconditions before statistical computation
+        - Minor GUI and UX refinements to align plugin behavior with QGIS
+          standard interaction patterns (non-intrusive, explicit, fail-fast)
+        - Codebase cleanup and normalization of early-return logic 
     3.0.1
         - Modernization to libpysal/esda (replacement of deprecated PySAL imports)
         - Rewritten Z-score and p-value computation for Getis-Ord Gi* and Local Moran
