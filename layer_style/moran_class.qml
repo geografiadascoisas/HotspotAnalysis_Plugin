@@ -4,26 +4,26 @@
     <edittype widgetv2type="TextEdit" name="Z-score">
       <widgetv2config IsMultiline="0" fieldEditable="1" UseHtml="0" labelOnTop="0"/>
     </edittype>
-    <edittype widgetv2type="TextEdit" name="p-value">
+    <edittype widgetv2type="TextEdit" name="p_value">
       <widgetv2config IsMultiline="0" fieldEditable="1" UseHtml="0" labelOnTop="0"/>
     </edittype>
-    <edittype widgetv2type="TextEdit" name="q-value">
+    <edittype widgetv2type="TextEdit" name="q_value">
       <widgetv2config IsMultiline="0" fieldEditable="1" UseHtml="0" labelOnTop="0"/>
     </edittype>
   </edittypes>
   <renderer-v2 forceraster="0" symbollevels="0" type="RuleRenderer" enableorderby="0">
     <rules key="{4eba3fed-b205-49c7-8c92-89d966dd153e}">
-      <rule description="High-High" filter="&quot;q-value&quot; = 1 AND &quot;p-value&quot; &lt; 0.05" key="{0cacbf79-134c-4612-9734-7383eba7b90f}" symbol="0" label="HH"/>
-      <rule description="Low-High" filter="&quot;q-value&quot; = 2 AND &quot;p-value&quot; &lt; 0.05" key="{13a211f7-5f96-4f21-99f8-5d1fac094af7}" symbol="1" label="LH"/>
-      <rule description="High-Low" filter="&quot;q-value&quot; = 4 AND &quot;p-value&quot; &lt; 0.05" key="{a7fba2bd-4ce9-44c9-b88f-eed30da26512}" symbol="2" label="HL"/>
-      <rule description="Low-Low" filter="&quot;q-value&quot; = 3 AND &quot;p-value&quot; &lt; 0.05" key="{39b93520-6359-455a-8267-164513579e35}" symbol="3" label="LL"/>
-      <rule filter="&quot;p-value&quot; > 0.05" key="{35437084-26bc-4d27-a0f0-7f2a28f3f606}" symbol="4" label="Not Significant (95%)"/>
+      <rule description="High-High" filter="&quot;q_value&quot; = 1 AND &quot;p_value&quot; &lt;= 0.050" key="{0cacbf79-134c-4612-9734-7383eba7b90f}" symbol="0" label="HH"/>
+      <rule description="Low-High" filter="&quot;q_value&quot; = 2 AND &quot;p_value&quot; &lt;= 0.050" key="{13a211f7-5f96-4f21-99f8-5d1fac094af7}" symbol="1" label="LH"/>
+      <rule description="High-Low" filter="&quot;q_value&quot; = 4 AND &quot;p_value&quot; &lt;= 0.050" key="{a7fba2bd-4ce9-44c9-b88f-eed30da26512}" symbol="2" label="HL"/>
+      <rule description="Low-Low" filter="&quot;q_value&quot; = 3 AND &quot;p_value&quot; &lt;= 0.050" key="{39b93520-6359-455a-8267-164513579e35}" symbol="3" label="LL"/>
+      <rule filter="&quot;p_value&quot; &gt; 0.050" key="{35437084-26bc-4d27-a0f0-7f2a28f3f606}" symbol="4" label="Not Significant"/>
     </rules>
     <symbols>
       <symbol alpha="1" clip_to_extent="1" type="marker" name="0">
         <layer pass="0" class="SimpleMarker" locked="0">
           <prop k="angle" v="0"/>
-          <prop k="color" v="227,26,28,255"/>
+          <prop k="color" v="215,48,39,255"/>
           <prop k="horizontal_anchor_point" v="1"/>
           <prop k="name" v="circle"/>
           <prop k="offset" v="0,0"/>
@@ -44,13 +44,13 @@
       <symbol alpha="1" clip_to_extent="1" type="marker" name="1">
         <layer pass="0" class="SimpleMarker" locked="0">
           <prop k="angle" v="0"/>
-          <prop k="color" v="243,229,230,255"/>
+          <prop k="color" v="171,217,233,255"/>
           <prop k="horizontal_anchor_point" v="1"/>
           <prop k="name" v="circle"/>
           <prop k="offset" v="0,0"/>
           <prop k="offset_map_unit_scale" v="0,0,0,0,0,0"/>
           <prop k="offset_unit" v="MM"/>
-          <prop k="outline_color" v="227,26,28,255"/>
+          <prop k="outline_color" v="69,117,180,255"/>
           <prop k="outline_style" v="solid"/>
           <prop k="outline_width" v="0.4"/>
           <prop k="outline_width_map_unit_scale" v="0,0,0,0,0,0"/>
@@ -65,13 +65,13 @@
       <symbol alpha="1" clip_to_extent="1" type="marker" name="2">
         <layer pass="0" class="SimpleMarker" locked="0">
           <prop k="angle" v="0"/>
-          <prop k="color" v="243,229,230,255"/>
+          <prop k="color" v="244,173,168,255"/>
           <prop k="horizontal_anchor_point" v="1"/>
           <prop k="name" v="circle"/>
           <prop k="offset" v="0,0"/>
           <prop k="offset_map_unit_scale" v="0,0,0,0,0,0"/>
           <prop k="offset_unit" v="MM"/>
-          <prop k="outline_color" v="31,120,180,255"/>
+          <prop k="outline_color" v="215,48,39,255"/>
           <prop k="outline_style" v="solid"/>
           <prop k="outline_width" v="0.4"/>
           <prop k="outline_width_map_unit_scale" v="0,0,0,0,0,0"/>
@@ -86,7 +86,7 @@
       <symbol alpha="1" clip_to_extent="1" type="marker" name="3">
         <layer pass="0" class="SimpleMarker" locked="0">
           <prop k="angle" v="0"/>
-          <prop k="color" v="31,120,180,255"/>
+          <prop k="color" v="69,117,180,255"/>
           <prop k="horizontal_anchor_point" v="1"/>
           <prop k="name" v="circle"/>
           <prop k="offset" v="0,0"/>

@@ -1,44 +1,68 @@
-# This file contains metadata for your plugin.
-# Since QGIS 2.0 this is the official structure for plugin metadata.
-
 [general]
-name=Hotspot Analysis v3
-qgisMinimumVersion=3.0
-description=Geographical cluster detection using LISA statistics (Getis-Ord Gi* and Local Moran’s I), fully modernized for QGIS 3.x with libpysal/esda.
-version=3.0.2
-author=Abimael Cereda Junior (maintainer), based on original work by Daniele Oxoli, Gabriele Prestifilippo, Mayra Zurbaràn and Stanly Shaji
+name=Hotspot Analysis v4
+qgisMinimumVersion=3.22
+description=LISA statistics for geographical cluster detection (Getis-Ord Gi*, Local Moran's I, Bivariate Local Moran's I) — Processing framework, QGIS 3.22+ and 4.x.
+version=4.0.0
+author=Abimael Cereda Junior
 email=ceredajunior@geografiadascoisas.com.br
 
-about=This plugin computes Local Indicators of Spatial Association (LISA) to detect statistically significant geographical clusters. Supported methods include Getis-Ord Gi*, Univariate Local Moran’s I, and Bivariate Local Moran’s I. Version 3 modernizes the entire analytical engine using libpysal/esda, ensuring correct Z-scores, p-values, q-values, robust KDTree distance estimation, improved matrix standardization, stability fixes for QGIS 3.x, and safer output generation.
+about=Computes Local Indicators of Spatial Association (LISA) via the QGIS Processing framework. Three algorithms are available: Getis-Ord Gi* (Getis & Ord 1992; Ord & Getis 1995), Univariate Local Moran's I (Anselin 1995), and Bivariate Local Moran's I (Anselin et al. 2002). Built on libpysal/esda. Aligned with GeoDa conventions: Gi* uses star=True, p-values are one-tailed. User-selectable parameters: spatial weights type, binary vs continuous weights, distance metric (Euclidean/Manhattan), row standardization, and permutation count.
 
 tracker=https://github.com/geografiadascoisas/HotSpotAnalysis_Plugin/issues
 repository=https://github.com/geografiadascoisas/HotSpotAnalysis_Plugin
 homepage=https://github.com/geografiadascoisas/HotSpotAnalysis_Plugin
 
-# Changelog (all versions must be listed under a single key)
 changelog=
+    4.0.0
+        - Complete migration to QGIS Processing framework (QgsProcessingAlgorithm)
+        - Three independent algorithms in the Processing Toolbox, Graphical Modeler, and batch mode
+        - Compatible with QGIS 3.22+ and 4.x via qgis.PyQt — no custom dialog required
+        - Provider structure: Hotspot Analysis v4 > LISA (extensible for future methods)
+        - Fixed: G_Local now uses star=True — correct Gi* definition; previous versions
+          computed Gi (star=False), a different statistic
+        - Fixed: p-values use 1-Phi(|Z|) — one-tailed with absolute Z-score, aligned with
+          GeoDa and Ord & Getis (1995); previous versions used signed Z causing cold spots
+          to be invisible in output styles
+        - Fixed: removed Z-score sign flip for datasets with negative mean — methodological
+          bug present since v1 with no reference implementation support
+        - Fixed: output field names changed from hyphens (Z-score, p-value, q-value) to
+          underscores (Z_score, p_value, q_value) — hyphens broke QML filter expressions
+          silently, causing Moran styles to never work in any prior release
+        - New parameter: binary vs continuous spatial weights (binary=True/False)
+        - New parameter: distance metric — Euclidean (p=2) or Manhattan (p=1)
+        - New parameter: Two-tailed p-value checkbox for v1/v3.x backward compatibility
+        - Automatic threshold detection using maximum nearest-neighbour distance (KDTree)
+        - Automatic threshold range derivation when optimization fields are left empty
+        - StylePostProcessor pattern for correct QML application after layer load
+        - QML styles: classification by p_value (primary) + sign(Z_score) (direction),
+          aligned with GeoDa and Anselin (1995); thresholds 0.005 / 0.025 / 0.050
+        - QML styles: RdYlBu ColorBrewer palette for Gi*; GeoDa LISA convention for Moran
+        - Full scientific documentation in README.md including methodology audit comparing
+          v1, GeoDa, ArcGIS, and original literature with full references
+        - Removed legacy build tools: Makefile, pb_tool.cfg, plugin_upload.py,
+          i18n/, help/, scripts/
+
     3.0.2
-        - Special thanks to Prof. Edson Augusto Melanda (UFSCar-Brazil) for testing and suggestions
+        - Special thanks to Prof. Edson Augusto Melanda (UFSCar-Brazil) for testing
+          and suggestions
         - Added full dependency guard for libpysal/esda with blocking behavior
-          (plugin no longer loads the dialog when required statistical libraries are missing)
+          (plugin no longer loads the dialog when required libraries are missing)
         - Detailed cross-platform installation guidance for missing dependencies
           (Windows OSGeo4W Shell, macOS QGIS Python, Linux QGIS Python)
-        - Added validation of project layers before opening the dialog:
-          plugin now blocks execution when no shapefile (.shp) vector layers
-          of type point or polygon are present in the project
+        - Added validation of project layers before opening the dialog: plugin blocks
+          execution when no shapefile (.shp) vector layers are present in the project
         - Introduced user-facing message explaining the shapefile requirement
-          and providing explicit operational guidance
-        - Hardened run() workflow to prevent silent failures and guarantee
-          proper preconditions before statistical computation
-        - Minor GUI and UX refinements to align plugin behavior with QGIS
-          standard interaction patterns (non-intrusive, explicit, fail-fast)
-        - Codebase cleanup and normalization of early-return logic 
+        - Hardened run() workflow to prevent silent failures and guarantee proper
+          preconditions before statistical computation
+        - Minor GUI and UX refinements aligned with QGIS interaction patterns
+        - Codebase cleanup and normalization of early-return logic
+
     3.0.1
         - Modernization to libpysal/esda (replacement of deprecated PySAL imports)
         - Rewritten Z-score and p-value computation for Getis-Ord Gi* and Local Moran
         - Correct handling of two-tailed p-values and removal of sign artifacts
         - q-value applied only for Local Moran analyses (never for Gi*)
-        - New KDTree-based distance threshold computation with O(n²) fallback
+        - New KDTree-based distance threshold computation with O(n2) fallback
         - Stabilized construction of KNN and Queen weights and standardization modes
         - Improved write_file(): safer attribute output, NaN checks, encoding fixes
         - Added stdout/stderr guards to avoid QGIS crashes on Windows systems
@@ -70,7 +94,9 @@ changelog=
     0.2
         - Enabled Anselin Local Moran's I and Bivariate Local Moran computation
 
-tags=hotspot, spatial analysis, LISA, cluster detection, Moran, Getis-Ord, libpysal, esda, geography
+pip_dependencies=libpysal,esda
+
+tags=hotspot, spatial analysis, LISA, cluster detection, Moran, Getis-Ord, libpysal, esda, GeoDa, processing
 category=Vector
 icon=hotspot.png
 

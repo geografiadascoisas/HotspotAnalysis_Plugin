@@ -1,28 +1,28 @@
 <!DOCTYPE qgis PUBLIC 'http://mrcc.com/qgis.dtd' 'SYSTEM'>
 <qgis version="2.14.3-Essen" minimumScale="0" maximumScale="1e+08" simplifyDrawingHints="0" minLabelScale="0" maxLabelScale="1e+08" simplifyDrawingTol="1" simplifyMaxScale="1" hasScaleBasedVisibilityFlag="0" simplifyLocal="1" scaleBasedLabelVisibilityFlag="0">
   <edittypes>
-    <edittype widgetv2type="TextEdit" name="Z-score">
+    <edittype widgetv2type="TextEdit" name="Z_score">
       <widgetv2config IsMultiline="0" fieldEditable="1" UseHtml="0" labelOnTop="0"/>
     </edittype>
-    <edittype widgetv2type="TextEdit" name="p-value">
+    <edittype widgetv2type="TextEdit" name="p_value">
       <widgetv2config IsMultiline="0" fieldEditable="1" UseHtml="0" labelOnTop="0"/>
     </edittype>
   </edittypes>
   <renderer-v2 forceraster="0" symbollevels="0" type="RuleRenderer" enableorderby="0">
     <rules key="{022d0e93-b3bd-445e-847a-906a61359801}">
-      <rule filter="&quot;Z-score&quot; &lt;= -2.58 AND &quot;p-value&quot; &lt;= 0.01" key="{92014674-0d51-41b9-9d49-eacccb0b9ddd}" symbol="0" label="coldspot 99% confidence"/>
-      <rule filter="&quot;Z-score&quot; &lt;= -1.96 AND &quot;Z-score&quot; > -2.58 AND &quot;p-value&quot; &lt;= 0.05 AND &quot;p-value&quot; > 0.01" key="{0972bbda-48ca-426f-b10d-3804ec63c350}" symbol="1" label="coldspot 95% confidence"/>
-      <rule filter="&quot;Z-score&quot; &lt;= -1.65 AND &quot;Z-score&quot; > -1.96 AND &quot;p-value&quot; &lt;= 0.1 AND &quot;p-value&quot; > 0.05" key="{4db48ebb-7475-4b80-a367-ea34a046b037}" symbol="2" label="coldspot 90% confidence"/>
-      <rule filter="&quot;Z-score&quot; > -1.65 AND &quot;Z-score&quot; &lt; 1.65 AND &quot;p-value&quot; > 0.1" key="{7f29558c-fd89-4a76-a23c-742c22fb6be2}" symbol="3" label="not significant"/>
-      <rule filter="&quot;Z-score&quot; >= 1.65 AND &quot;Z-score&quot; &lt; 1.96 AND &quot;p-value&quot; &lt;= 0.1 AND &quot;p-value&quot; > 0.05" key="{e207b7c2-d812-4614-8934-8efaed7e5c83}" symbol="4" label="hotspot 90% confidence"/>
-      <rule filter="&quot;Z-score&quot; >= 1.96 AND &quot;Z-score&quot; &lt; 2.58 AND &quot;p-value&quot; &lt;= 0.05 AND &quot;p-value&quot; > 0.01" key="{2047f641-3f1b-43e5-bbbc-acdf4f66c7d8}" symbol="5" label="hotspot 95% confidence"/>
-      <rule filter="&quot;Z-score&quot; >= 2.58 AND &quot;p-value&quot; &lt;= 0.01" key="{656bbd4e-43b1-431c-bfe2-2e4d316a7cdc}" symbol="6" label="hotspot 99% confidence"/>
+      <rule filter="&quot;Z_score&quot; &lt; 0 AND &quot;p_value&quot; &lt;= 0.005" key="{92014674-0d51-41b9-9d49-eacccb0b9ddd}" symbol="0" label="coldspot 99% confidence"/>
+      <rule filter="&quot;Z_score&quot; &lt; 0 AND &quot;p_value&quot; &gt; 0.005 AND &quot;p_value&quot; &lt;= 0.025" key="{0972bbda-48ca-426f-b10d-3804ec63c350}" symbol="1" label="coldspot 95% confidence"/>
+      <rule filter="&quot;Z_score&quot; &lt; 0 AND &quot;p_value&quot; &gt; 0.025 AND &quot;p_value&quot; &lt;= 0.050" key="{4db48ebb-7475-4b80-a367-ea34a046b037}" symbol="2" label="coldspot 90% confidence"/>
+      <rule filter="&quot;p_value&quot; &gt; 0.050" key="{7f29558c-fd89-4a76-a23c-742c22fb6be2}" symbol="3" label="not significant"/>
+      <rule filter="&quot;Z_score&quot; &gt; 0 AND &quot;p_value&quot; &gt; 0.025 AND &quot;p_value&quot; &lt;= 0.050" key="{e207b7c2-d812-4614-8934-8efaed7e5c83}" symbol="4" label="hotspot 90% confidence"/>
+      <rule filter="&quot;Z_score&quot; &gt; 0 AND &quot;p_value&quot; &gt; 0.005 AND &quot;p_value&quot; &lt;= 0.025" key="{2047f641-3f1b-43e5-bbbc-acdf4f66c7d8}" symbol="5" label="hotspot 95% confidence"/>
+      <rule filter="&quot;Z_score&quot; &gt; 0 AND &quot;p_value&quot; &lt;= 0.005" key="{656bbd4e-43b1-431c-bfe2-2e4d316a7cdc}" symbol="6" label="hotspot 99% confidence"/>
     </rules>
     <symbols>
       <symbol alpha="1" clip_to_extent="1" type="marker" name="0">
         <layer pass="0" class="SimpleMarker" locked="0">
           <prop k="angle" v="0"/>
-          <prop k="color" v="31,120,180,255"/>
+          <prop k="color" v="49,54,149,255"/>
           <prop k="horizontal_anchor_point" v="1"/>
           <prop k="name" v="circle"/>
           <prop k="offset" v="0,0"/>
@@ -43,7 +43,7 @@
       <symbol alpha="1" clip_to_extent="1" type="marker" name="1">
         <layer pass="0" class="SimpleMarker" locked="0">
           <prop k="angle" v="0"/>
-          <prop k="color" v="38,187,219,255"/>
+          <prop k="color" v="69,117,180,255"/>
           <prop k="horizontal_anchor_point" v="1"/>
           <prop k="name" v="circle"/>
           <prop k="offset" v="0,0"/>
@@ -64,7 +64,7 @@
       <symbol alpha="1" clip_to_extent="1" type="marker" name="2">
         <layer pass="0" class="SimpleMarker" locked="0">
           <prop k="angle" v="0"/>
-          <prop k="color" v="146,255,225,255"/>
+          <prop k="color" v="116,173,209,255"/>
           <prop k="horizontal_anchor_point" v="1"/>
           <prop k="name" v="circle"/>
           <prop k="offset" v="0,0"/>
@@ -106,7 +106,7 @@
       <symbol alpha="1" clip_to_extent="1" type="marker" name="4">
         <layer pass="0" class="SimpleMarker" locked="0">
           <prop k="angle" v="0"/>
-          <prop k="color" v="234,215,40,255"/>
+          <prop k="color" v="253,174,97,255"/>
           <prop k="horizontal_anchor_point" v="1"/>
           <prop k="name" v="circle"/>
           <prop k="offset" v="0,0"/>
@@ -127,7 +127,7 @@
       <symbol alpha="1" clip_to_extent="1" type="marker" name="5">
         <layer pass="0" class="SimpleMarker" locked="0">
           <prop k="angle" v="0"/>
-          <prop k="color" v="253,110,92,255"/>
+          <prop k="color" v="244,109,67,255"/>
           <prop k="horizontal_anchor_point" v="1"/>
           <prop k="name" v="circle"/>
           <prop k="offset" v="0,0"/>
@@ -148,7 +148,7 @@
       <symbol alpha="1" clip_to_extent="1" type="marker" name="6">
         <layer pass="0" class="SimpleMarker" locked="0">
           <prop k="angle" v="0"/>
-          <prop k="color" v="203,26,0,255"/>
+          <prop k="color" v="215,48,39,255"/>
           <prop k="horizontal_anchor_point" v="1"/>
           <prop k="name" v="circle"/>
           <prop k="offset" v="0,0"/>

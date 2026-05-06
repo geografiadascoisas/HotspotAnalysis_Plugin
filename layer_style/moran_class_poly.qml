@@ -4,26 +4,26 @@
     <edittype widgetv2type="TextEdit" name="Z-score">
       <widgetv2config IsMultiline="0" fieldEditable="1" UseHtml="0" labelOnTop="0"/>
     </edittype>
-    <edittype widgetv2type="TextEdit" name="p-value">
+    <edittype widgetv2type="TextEdit" name="p_value">
       <widgetv2config IsMultiline="0" fieldEditable="1" UseHtml="0" labelOnTop="0"/>
     </edittype>
-    <edittype widgetv2type="TextEdit" name="q-value">
+    <edittype widgetv2type="TextEdit" name="q_value">
       <widgetv2config IsMultiline="0" fieldEditable="1" UseHtml="0" labelOnTop="0"/>
     </edittype>
   </edittypes>
   <renderer-v2 forceraster="0" symbollevels="0" type="RuleRenderer" enableorderby="0">
     <rules key="{c9b93086-e8d6-4d0d-872c-e1eccd0c573b}">
-      <rule filter="&quot;q-value&quot; = 1  AND &quot;p-value&quot; &lt;= 0.05" key="{f98f2977-ff42-4058-82db-9a20a7fe27ae}" symbol="0" label="HH"/>
-      <rule filter="&quot;q-value&quot; = 4  AND &quot;p-value&quot; &lt;= 0.05" key="{12b49e3a-2c4a-4343-a144-e7f714a6c473}" symbol="1" label="HL"/>
-      <rule filter="&quot;q-value&quot; = 2  AND &quot;p-value&quot; &lt;= 0.05" key="{fca5a11b-9345-4426-a405-beb3a367e7bb}" symbol="2" label="LH"/>
-      <rule filter="&quot;q-value&quot; = 3  AND &quot;p-value&quot; &lt;= 0.05" key="{8b6b9d92-6a42-4fc8-a946-49b82c73b828}" symbol="3" label="LL"/>
-      <rule filter=" &quot;p-value&quot; > 0.05" key="{4cb104d8-4294-458f-8cc2-4191c010b26b}" symbol="4" label="Not Significant (95%)"/>
+      <rule filter="&quot;q_value&quot; = 1 AND &quot;p_value&quot; &lt;= 0.050" key="{f98f2977-ff42-4058-82db-9a20a7fe27ae}" symbol="0" label="HH"/>
+      <rule filter="&quot;q_value&quot; = 4 AND &quot;p_value&quot; &lt;= 0.050" key="{12b49e3a-2c4a-4343-a144-e7f714a6c473}" symbol="1" label="HL"/>
+      <rule filter="&quot;q_value&quot; = 2 AND &quot;p_value&quot; &lt;= 0.050" key="{fca5a11b-9345-4426-a405-beb3a367e7bb}" symbol="2" label="LH"/>
+      <rule filter="&quot;q_value&quot; = 3 AND &quot;p_value&quot; &lt;= 0.050" key="{8b6b9d92-6a42-4fc8-a946-49b82c73b828}" symbol="3" label="LL"/>
+      <rule filter="&quot;p_value&quot; &gt; 0.050" key="{4cb104d8-4294-458f-8cc2-4191c010b26b}" symbol="4" label="Not Significant"/>
     </rules>
     <symbols>
       <symbol alpha="1" clip_to_extent="1" type="fill" name="0">
         <layer pass="0" class="SimpleFill" locked="0">
           <prop k="border_width_map_unit_scale" v="0,0,0,0,0,0"/>
-          <prop k="color" v="227,26,28,255"/>
+          <prop k="color" v="215,48,39,255"/>
           <prop k="joinstyle" v="bevel"/>
           <prop k="offset" v="0,0"/>
           <prop k="offset_map_unit_scale" v="0,0,0,0,0,0"/>
@@ -38,12 +38,12 @@
       <symbol alpha="1" clip_to_extent="1" type="fill" name="1">
         <layer pass="0" class="SimpleFill" locked="0">
           <prop k="border_width_map_unit_scale" v="0,0,0,0,0,0"/>
-          <prop k="color" v="243,229,230,255"/>
+          <prop k="color" v="244,173,168,255"/>
           <prop k="joinstyle" v="bevel"/>
           <prop k="offset" v="0,0"/>
           <prop k="offset_map_unit_scale" v="0,0,0,0,0,0"/>
           <prop k="offset_unit" v="MM"/>
-          <prop k="outline_color" v="227,26,28,255"/>
+          <prop k="outline_color" v="215,48,39,255"/>
           <prop k="outline_style" v="solid"/>
           <prop k="outline_width" v="1.46"/>
           <prop k="outline_width_unit" v="MM"/>
@@ -53,12 +53,12 @@
       <symbol alpha="1" clip_to_extent="1" type="fill" name="2">
         <layer pass="0" class="SimpleFill" locked="0">
           <prop k="border_width_map_unit_scale" v="0,0,0,0,0,0"/>
-          <prop k="color" v="243,229,230,255"/>
+          <prop k="color" v="171,217,233,255"/>
           <prop k="joinstyle" v="bevel"/>
           <prop k="offset" v="0,0"/>
           <prop k="offset_map_unit_scale" v="0,0,0,0,0,0"/>
           <prop k="offset_unit" v="MM"/>
-          <prop k="outline_color" v="31,120,180,255"/>
+          <prop k="outline_color" v="69,117,180,255"/>
           <prop k="outline_style" v="solid"/>
           <prop k="outline_width" v="1.26"/>
           <prop k="outline_width_unit" v="MM"/>
@@ -68,7 +68,7 @@
       <symbol alpha="1" clip_to_extent="1" type="fill" name="3">
         <layer pass="0" class="SimpleFill" locked="0">
           <prop k="border_width_map_unit_scale" v="0,0,0,0,0,0"/>
-          <prop k="color" v="31,120,180,255"/>
+          <prop k="color" v="69,117,180,255"/>
           <prop k="joinstyle" v="bevel"/>
           <prop k="offset" v="0,0"/>
           <prop k="offset_map_unit_scale" v="0,0,0,0,0,0"/>
