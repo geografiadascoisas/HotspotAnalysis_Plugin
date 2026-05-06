@@ -77,6 +77,26 @@ def min_threshold_from_coords(coords):
         return mx
 
 
+def fdr_bh(p_values):
+    """
+    Benjamini-Hochberg FDR correction for multiple comparisons in LISA.
+
+    Following Caldas de Castro & Singer (2006) Geographical Analysis 38(2).
+    Returns BH-adjusted p-values in original feature order.
+    """
+    p = np.asarray(p_values, dtype=float)
+    n = len(p)
+    if n == 0:
+        return p.copy()
+    idx = np.argsort(p)
+    sorted_p = p[idx]
+    adj = np.minimum(1.0, sorted_p * n / np.arange(1, n + 1))
+    adj = np.minimum.accumulate(adj[::-1])[::-1]
+    result = np.empty(n)
+    result[idx] = adj
+    return result
+
+
 def dependency_error_message(original_error: str = "") -> str:
     """
     Return a clear installation/troubleshooting message when libpysal/esda

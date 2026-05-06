@@ -45,7 +45,7 @@
           <prop k="offset_unit" v="MM"/>
           <prop k="outline_color" v="215,48,39,255"/>
           <prop k="outline_style" v="solid"/>
-          <prop k="outline_width" v="1.46"/>
+          <prop k="outline_width" v="0.26"/>
           <prop k="outline_width_unit" v="MM"/>
           <prop k="style" v="solid"/>
         </layer>
@@ -60,7 +60,7 @@
           <prop k="offset_unit" v="MM"/>
           <prop k="outline_color" v="69,117,180,255"/>
           <prop k="outline_style" v="solid"/>
-          <prop k="outline_width" v="1.26"/>
+          <prop k="outline_width" v="0.26"/>
           <prop k="outline_width_unit" v="MM"/>
           <prop k="style" v="solid"/>
         </layer>

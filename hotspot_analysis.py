@@ -15,7 +15,6 @@ Maintainer (2025): Abimael Cereda Junior
 """
 
 from qgis.core import QgsApplication
-from . import resources  # noqa: F401 — registers plugin icons
 from .processing.provider import HotspotProvider
 
 

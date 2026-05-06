@@ -9,6 +9,8 @@ email=ceredajunior@geografiadascoisas.com.br
 
 about=Computes Local Indicators of Spatial Association (LISA) via the QGIS Processing framework. Three algorithms are available: Getis-Ord Gi* (Getis & Ord 1992; Ord & Getis 1995), Univariate Local Moran's I (Anselin 1995), and Bivariate Local Moran's I (Anselin et al. 2002). Built on libpysal/esda. Aligned with GeoDa conventions: Gi* uses star=True, p-values are one-tailed. User-selectable parameters: spatial weights type, binary vs continuous weights, distance metric (Euclidean/Manhattan), row standardization, and permutation count.
 
+    Dependencies: libpysal and esda (Python packages). QGIS 3.30+ installs them automatically via the Plugin Manager. For older QGIS versions or manual installation on Windows, open the OSGeo4W Shell and run: pip install libpysal esda. See the README for full instructions.
+
 tracker=https://github.com/geografiadascoisas/HotSpotAnalysis_Plugin/issues
 repository=https://github.com/geografiadascoisas/HotSpotAnalysis_Plugin
 homepage=https://github.com/geografiadascoisas/HotSpotAnalysis_Plugin
@@ -95,6 +97,7 @@ changelog=
     0.2
         - Enabled Anselin Local Moran's I and Bivariate Local Moran computation
 
+license=GPL-3.0
 pip_dependencies=libpysal,esda
 
 tags=hotspot, spatial analysis, LISA, cluster detection, Moran, Getis-Ord, libpysal, esda, GeoDa, processing

@@ -41,7 +41,7 @@ from qgis.core import (
 )
 from qgis.PyQt.QtCore import QVariant
 
-from .utils import min_threshold_from_coords, dependency_error_message, StylePostProcessor
+from .utils import min_threshold_from_coords, dependency_error_message, StylePostProcessor, fdr_bh
 
 # esda / libpysal are imported lazily inside processAlgorithm — see alg_gi_star.py.
 
@@ -105,29 +105,48 @@ class MoranLocalBV(QgsProcessingAlgorithm):
 
     def shortHelpString(self):
         return (
-            "<p>Computes <b>Bivariate Local Moran's I</b> "
-            "(Anselin et al. 2002).</p>"
-            '<p>Measures the association between <b>Field X at location i</b> '
-            'and the <b>spatial lag of Field Y</b> across neighbouring '
-            'locations.</p>'
-            '<p><b>Important</b>: this statistic does <i>not</i> measure '
-            'co-location of X and Y at the same site. See README for the '
-            'full methodological discussion.</p>'
+            "<p>Computes <b>Bivariate Local Moran's I</b>, measuring the association "
+            'between <b>Field X at a location</b> and the <b>spatial lag of Field Y</b> '
+            'across its neighbours.</p>'
+            '<p><b>Note:</b> this statistic does <i>not</i> measure co-location of X and Y '
+            'at the same site. For a full methodological discussion, see the documentation.</p>'
+            '<p><b>Parameters</b><br>'
+            '<i>Input layer</i> — Point or polygon vector layer.<br>'
+            '<i>Field X (focal variable)</i> — Numeric field whose value is measured at each location.<br>'
+            '<i>Field Y (spatially lagged variable)</i> — Numeric field averaged across the neighbours of each location.<br>'
+            '<i>Spatial weights type</i> — How neighbours are defined:<br>'
+            '&nbsp;&nbsp;· Distance Band — all features within a given distance<br>'
+            '&nbsp;&nbsp;· KNN — a fixed number of nearest neighbours<br>'
+            '&nbsp;&nbsp;· Queen Contiguity — features sharing a border or vertex (polygons only)<br>'
+            '<i>Distance threshold</i> — Maximum distance to consider a feature a neighbour '
+            '(Distance Band). Leave empty to use the optimised value.<br>'
+            '<i>Optimize threshold automatically</i> — Finds the distance that maximises '
+            'spatial autocorrelation within the Min / Max / Step range.<br>'
+            '<i>Minimum / Maximum / Step</i> — Search bounds for automatic threshold optimisation.<br>'
+            '<i>K neighbors</i> — Number of nearest neighbours (KNN only).<br>'
+            '<i>Binary weights</i> — Checked: neighbours count equally. Unchecked: weight decreases with distance.<br>'
+            '<i>Distance metric</i> — Formula used to measure distances between features.<br>'
+            '<i>Row standardization</i> — Normalises each row so weights sum to 1. '
+            'Useful when features have unequal numbers of neighbours.<br>'
+            '<i>Random permutations</i> — Monte Carlo simulations to compute the p-value. '
+            'Default 999. 0 = analytical approximation.<br>'
+            '<i>Two-tailed p-value</i> — Compatibility with plugin v1 output. '
+            'Not recommended; one-tailed is the standard.</p>'
             '<p><b>Output fields</b><br>'
-            '&nbsp;&nbsp;<i>Z_score</i> — standardised bivariate Moran value<br>'
-            '&nbsp;&nbsp;<i>p_value</i> — one-tailed pseudo p-value (aligned with GeoDa)<br>'
-            '&nbsp;&nbsp;<i>q_value</i> — quadrant (1=HH, 2=LH, 3=LL, 4=HL)</p>'
-            '<p><b>p-value convention</b><br>'
-            'By default, p-values are <b>one-tailed</b> — the standard '
-            'approach in the spatial statistics literature (Anselin et al. '
-            '2002) and in major reference implementations.<br>'
-            'Check <i>Two-tailed p-value</i> only to reproduce v1 output '
-            '(p&nbsp;=&nbsp;2&nbsp;×&nbsp;one-tailed). This is provided '
-            'for backward compatibility; one-tailed is recommended.</p>'
+            '<i>Z_score</i> — standardised bivariate Moran value<br>'
+            '<i>p_value</i> — one-tailed pseudo p-value<br>'
+            '<i>q_value</i> — spatial quadrant: 1 = HH, 2 = LH, 3 = LL, 4 = HL<br>'
+            '<i>p_fdr</i> — Benjamini-Hochberg adjusted p-value for multiple comparisons '
+            '(Caldas de Castro &amp; Singer 2006)</p>'
+            '<p><b>NULL / NaN values</b><br>'
+            'Features with NULL or NaN in either Field X or Field Y are automatically excluded '
+            'from computation (their output fields will be NaN). A warning is shown in the log. '
+            'This follows the GeoDa convention (Caldas de Castro &amp; Singer 2006).</p>'
             '<p><b>References</b><br>'
             'Anselin et al. (2002) New Tools for Spatial Data Analysis.<br>'
-            'Anselin (1995) Geographical Analysis 27(2), 93–115.</p>'
-            '<p><b>Source &amp; support</b><br>'
+            'Anselin (1995) Geographical Analysis 27(2), 93–115.<br>'
+            'Caldas de Castro &amp; Singer (2006) Geographical Analysis 38(2).</p>'
+            '<p><b>Documentation and Source</b><br>'
             'Maintained by Abimael Cereda Junior. Based on original work by '
             'Daniele Oxoli et al. (Politecnico di Milano, 2017).<br>'
             '<a href="https://github.com/geografiadascoisas/HotSpotAnalysis_Plugin">'
@@ -139,94 +158,124 @@ class MoranLocalBV(QgsProcessingAlgorithm):
     # ------------------------------------------------------------------
 
     def initAlgorithm(self, config=None):
-        self.addParameter(QgsProcessingParameterVectorLayer(
+        param = QgsProcessingParameterVectorLayer(
             self.INPUT, 'Input layer',
             types=[QgsProcessing.TypeVectorPoint,
                    QgsProcessing.TypeVectorPolygon],
-        ))
+        )
+        param.setHelp('Point or polygon vector layer.')
+        self.addParameter(param)
 
-        self.addParameter(QgsProcessingParameterField(
+        param = QgsProcessingParameterField(
             self.FIELD_X, 'Field X (focal variable)',
             parentLayerParameterName=self.INPUT,
             type=QgsProcessingParameterField.Numeric,
-        ))
+        )
+        param.setHelp('Numeric field whose value is measured at each location. Features with NULL or NaN in X or Y are automatically excluded (their output fields will be NaN).')
+        self.addParameter(param)
 
-        self.addParameter(QgsProcessingParameterField(
+        param = QgsProcessingParameterField(
             self.FIELD_Y, 'Field Y (spatially lagged variable)',
             parentLayerParameterName=self.INPUT,
             type=QgsProcessingParameterField.Numeric,
-        ))
+        )
+        param.setHelp('Numeric field averaged across the neighbours of each location. Features with NULL or NaN in X or Y are automatically excluded (their output fields will be NaN).')
+        self.addParameter(param)
 
-        self.addParameter(QgsProcessingParameterEnum(
+        param = QgsProcessingParameterEnum(
             self.WEIGHTS_TYPE, 'Spatial weights type',
             options=self.WEIGHTS_OPTIONS,
             defaultValue=0,
-        ))
+        )
+        param.setHelp('How neighbours are defined: Distance Band, KNN, or Queen Contiguity (polygons only).')
+        self.addParameter(param)
 
-        self.addParameter(QgsProcessingParameterNumber(
+        param = QgsProcessingParameterNumber(
             self.THRESHOLD, 'Distance threshold (Distance Band)',
             type=QgsProcessingParameterNumber.Double,
             optional=True, minValue=0.0,
-        ))
+        )
+        param.setHelp('Maximum distance to consider a feature a neighbour (Distance Band). Leave empty to use the optimised value.')
+        self.addParameter(param)
 
-        self.addParameter(QgsProcessingParameterBoolean(
+        param = QgsProcessingParameterBoolean(
             self.OPTIMIZE, 'Optimize threshold automatically',
             defaultValue=False,
-        ))
+        )
+        param.setHelp('Finds the distance that maximises spatial autocorrelation within the Min / Max / Step range.')
+        self.addParameter(param)
 
-        self.addParameter(QgsProcessingParameterNumber(
+        param = QgsProcessingParameterNumber(
             self.MIN_T, 'Minimum distance (optimization)',
             type=QgsProcessingParameterNumber.Double,
             optional=True, minValue=0.0,
-        ))
+        )
+        param.setHelp('Lower bound for automatic threshold optimisation.')
+        self.addParameter(param)
 
-        self.addParameter(QgsProcessingParameterNumber(
+        param = QgsProcessingParameterNumber(
             self.MAX_T, 'Maximum distance (optimization)',
             type=QgsProcessingParameterNumber.Double,
             optional=True, minValue=0.0,
-        ))
+        )
+        param.setHelp('Upper bound for automatic threshold optimisation.')
+        self.addParameter(param)
 
-        self.addParameter(QgsProcessingParameterNumber(
+        param = QgsProcessingParameterNumber(
             self.STEP_T, 'Step (optimization)',
             type=QgsProcessingParameterNumber.Double,
             optional=True, minValue=1.0,
-        ))
+        )
+        param.setHelp('Increment step for automatic threshold optimisation.')
+        self.addParameter(param)
 
-        self.addParameter(QgsProcessingParameterNumber(
+        param = QgsProcessingParameterNumber(
             self.KNN_K, 'K neighbors (KNN)',
             type=QgsProcessingParameterNumber.Integer,
             optional=True, minValue=1, defaultValue=5,
-        ))
+        )
+        param.setHelp('Number of nearest neighbours (KNN only).')
+        self.addParameter(param)
 
-        self.addParameter(QgsProcessingParameterBoolean(
+        param = QgsProcessingParameterBoolean(
             self.BINARY_WEIGHTS,
             'Binary weights (0/1) — unchecked = continuous (distance-decay)',
             defaultValue=True,
-        ))
+        )
+        param.setHelp('Checked: neighbours count equally. Unchecked: weight decreases with distance.')
+        self.addParameter(param)
 
-        self.addParameter(QgsProcessingParameterEnum(
+        param = QgsProcessingParameterEnum(
             self.DISTANCE_METRIC, 'Distance metric',
             options=self.DISTANCE_OPTIONS,
             defaultValue=0,
-        ))
+        )
+        param.setHelp('Formula used to measure distances between features.')
+        self.addParameter(param)
 
-        self.addParameter(QgsProcessingParameterBoolean(
+        param = QgsProcessingParameterBoolean(
             self.ROW_STANDARDIZE, 'Row standardization',
             defaultValue=False,
-        ))
+        )
+        param.setHelp('Normalises each row so weights sum to 1. Useful when features have unequal numbers of neighbours.')
+        self.addParameter(param)
 
-        self.addParameter(QgsProcessingParameterNumber(
+        param = QgsProcessingParameterNumber(
             self.PERMUTATIONS,
             'Random permutations (0 = normal approximation)',
             type=QgsProcessingParameterNumber.Integer,
             minValue=0, defaultValue=999,
-        ))
+        )
+        param.setHelp('Monte Carlo simulations to compute the p-value. Default 999, following GeoDa and PySAL conventions (Anselin 1995; Ord &amp; Getis 1995). 0 = analytical approximation (faster but less robust).')
+        self.addParameter(param)
 
-        self.addParameter(QgsProcessingParameterBoolean(
+        param = QgsProcessingParameterBoolean(
             self.TWO_TAILED,
             'Two-tailed p-value  (v1 compatibility — see help)',
             defaultValue=False,
-        ))
+        )
+        param.setHelp('Compatibility with plugin v1 output. Not recommended; one-tailed is the standard.')
+        self.addParameter(param)
 
         self.addParameter(QgsProcessingParameterFeatureSink(
             self.OUTPUT, "Bivariate Local Moran's I output",
@@ -260,15 +309,16 @@ class MoranLocalBV(QgsProcessingAlgorithm):
 
         geom_type = source.geometryType()
 
-        if geom_type == QgsWkbTypes.PolygonGeometry and weights_type != 2:
-            feedback.pushWarning(
-                "Polygon layer detected — switching to Queen's Contiguity automatically."
-            )
-            weights_type = 2
-
         if geom_type == QgsWkbTypes.PointGeometry and weights_type == 2:
             raise QgsProcessingException(
                 "Queen's Contiguity requires a polygon layer."
+            )
+
+        if geom_type == QgsWkbTypes.PolygonGeometry and weights_type in (0, 1):
+            feedback.pushWarning(
+                "Distance-based weights for polygon layers use feature centroids, "
+                "not polygon boundaries. For topology-based weights, consider "
+                "Queen's Contiguity instead."
             )
 
         # --- Collect field values and coordinates in one pass -----------
@@ -293,16 +343,68 @@ class MoranLocalBV(QgsProcessingAlgorithm):
         y_arr  = np.array([d[2] for d in features_data])
         coords = [d[3] for d in features_data]
 
+        # --- NaN guard (Caldas de Castro & Singer (2006); GeoDa convention) ---
+        # esda uses y.mean() / y.std(), not nanmean — one NULL corrupts all.
+        nan_mask = np.isnan(x_arr) | np.isnan(y_arr)
+        n_nan    = int(nan_mask.sum())
+        if n_nan > 0:
+            feedback.pushWarning(
+                f"{n_nan} feature(s) with NULL/NaN in '{field_x}' or '{field_y}' "
+                f"will be excluded from computation. Their result fields will be NaN."
+            )
+            valid  = ~nan_mask
+            x_arr  = x_arr[valid]
+            y_arr  = y_arr[valid]
+            coords = [c for c, v in zip(coords, valid) if v]
+        else:
+            valid = np.ones(len(x_arr), dtype=bool)
+
+        n_valid = int(valid.sum())
+        if n_valid < 3:
+            raise QgsProcessingException(
+                f"At least 3 valid features are required. "
+                f"Only {n_valid} remain after excluding NULL/NaN values."
+            )
+        if x_arr.std() == 0 or y_arr.std() == 0:
+            raise QgsProcessingException(
+                "Both Field X and Field Y must have non-zero variance. "
+                "Bivariate Local Moran's I requires variation in both fields."
+            )
+
         feedback.setProgress(10)
+
+        # --- CRS warning for distance-based weights ---------------------
+        if weights_type in (0, 1) and source.crs().isGeographic():
+            feedback.pushWarning(
+                "The layer CRS uses geographic coordinates (degrees). "
+                "Distance Band and KNN thresholds will be in decimal degrees, "
+                "not metric units. Consider reprojecting to a projected CRS "
+                "before using distance-based weights."
+            )
 
         # --- Spatial weights --------------------------------------------
         if weights_type == 2:
-            path = source.dataProvider().dataSourceUri().split('|')[0]
-            w = Queen.from_shapefile(path)
+            # Build Queen weights from feature geometries via Shapely WKT.
+            # Works with any QGIS vector provider (GeoPackage, PostGIS, memory,
+            # filtered layers). Queen.from_shapefile() reads the full physical
+            # file and ignores layer filters; from_iterable() builds from exactly
+            # the valid features passed here, preserving NaN exclusions without
+            # needing w_subset. Shapely is a mandatory dependency of libpysal.
+            from shapely.wkt import loads as wkt_loads
+            valid_geoms = [
+                wkt_loads(d[0].geometry().asWkt())
+                for d, v in zip(features_data, valid) if v
+            ]
+            w = Queen.from_iterable(valid_geoms)
             threshold_used = "Queen's Contiguity"
 
         elif weights_type == 1:
             knn_k = self.parameterAsInt(parameters, self.KNN_K, context)
+            if knn_k >= n_valid:
+                raise QgsProcessingException(
+                    f"KNN requires k < number of valid features. "
+                    f"Got k={knn_k}, valid features={n_valid}."
+                )
             w = KNN(coords, k=knn_k, p=p_metric)
             threshold_used = f'KNN  k={knn_k}  p={p_metric}'
 
@@ -363,9 +465,11 @@ class MoranLocalBV(QgsProcessingAlgorithm):
         np.random.seed(12345)
         # x_arr = focal variable (X at location i)
         # y_arr = spatially lagged variable (Y at neighbours j)
+        # n_jobs=1 is mandatory: joblib's loky backend cannot safely spawn
+        # child processes inside QGIS (Qt environment + Windows FD conflict).
         statistics = Moran_Local_BV(x_arr, y_arr, w,
                                     transformation=type_w,
-                                    permutations=permutations)
+                                    permutations=permutations, n_jobs=1)
 
         feedback.setProgress(75)
 
@@ -383,11 +487,32 @@ class MoranLocalBV(QgsProcessingAlgorithm):
 
         q_arr = getattr(statistics, 'q', None)
 
+        p_fdr = fdr_bh(p_arr_out)
+        if permutations == 0:
+            feedback.pushInfo(
+                'Note: FDR correction applied to analytical p-values. '
+                'For more robust inference, consider setting permutations > 0.'
+            )
+
+        # Map results back to full feature array (NaN for excluded features)
+        n_all     = len(features_data)
+        z_out     = np.full(n_all, float('nan'))
+        p_out     = np.full(n_all, float('nan'))
+        p_fdr_out = np.full(n_all, float('nan'))
+        z_out[valid]     = z_arr_out
+        p_out[valid]     = p_arr_out
+        p_fdr_out[valid] = p_fdr
+        q_out = None
+        if q_arr is not None:
+            q_out = np.full(n_all, 0, dtype=int)
+            q_out[valid] = q_arr
+
         # --- Build output -----------------------------------------------
         out_fields = QgsFields(source.fields())
         out_fields.append(QgsField('Z_score', QVariant.Double))
         out_fields.append(QgsField('p_value', QVariant.Double))
         out_fields.append(QgsField('q_value', QVariant.Int))
+        out_fields.append(QgsField('p_fdr',   QVariant.Double))
 
         (sink, dest_id) = self.parameterAsSink(
             parameters, self.OUTPUT, context,
@@ -397,16 +522,18 @@ class MoranLocalBV(QgsProcessingAlgorithm):
         for i, (feat, _, _, _) in enumerate(features_data):
             out_feat = QgsFeature(out_fields)
             out_feat.setGeometry(feat.geometry())
-            zval = float(z_arr_out[i]) if i < len(z_arr_out) else float('nan')
-            pval = float(p_arr_out[i]) if i < len(p_arr_out) else float('nan')
-            qval = int(q_arr[i]) if q_arr is not None and i < len(q_arr) else None
-            out_feat.setAttributes(feat.attributes() + [zval, pval, qval])
+            qval = int(q_out[i]) if q_out is not None and not nan_mask[i] else None
+            out_feat.setAttributes(
+                feat.attributes() + [float(z_out[i]), float(p_out[i]), qval, float(p_fdr_out[i])]
+            )
             sink.addFeature(out_feat, QgsFeatureSink.FastInsert)
 
         feedback.setProgress(100)
+        n_computed = int(valid.sum())
         feedback.pushInfo(
-            f"Bivariate Local Moran's I complete — {len(features_data)} features  |  "
-            f'{threshold_used}'
+            f"Bivariate Local Moran's I complete — {n_computed} features computed"
+            + (f', {n_nan} excluded (NULL)' if n_nan > 0 else '')
+            + f'  |  {threshold_used}'
         )
 
         style_dir = os.path.join(os.path.dirname(__file__), '..', 'layer_style')
