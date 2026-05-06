@@ -1,23 +1,21 @@
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
- HotspotAnalysis v3.0.1
+ Hotspot Analysis v4.0.0
                                  A QGIS plugin
- Geographical cluster detection using LISA statistics (Getis-Ord Gi*,
- Local Moran’s I and Bivariate Moran), modernized for QGIS 3.x with
- libpysal/esda.
+ LISA statistics for geographical cluster detection (Getis-Ord Gi*,
+ Local Moran’s I, Bivariate Local Moran’s I) — Processing framework,
+ QGIS 3.22+ and 4.x.
                              -------------------
         begin                : 2017-02-22
-        updated              : 2025-08-12
+        updated              : 2026-05-06
         maintainer           : Abimael Cereda Junior
         email                : ceredajunior@geografiadascoisas.com.br
 
-        original authors     : 
-            Daniele Oxoli
-            Gabriele Prestifilippo
-            Mayra Zurbaràn
-            Stanly Shaji
-            Politecnico di Milano
+        original authors     :
+            Daniele Oxoli, Gabriele Prestifilippo,
+            Mayra Zurbaràn, Stanly Shaji
+            (Politecnico di Milano)
 
         git sha              : $Format:%H$
  ***************************************************************************/
