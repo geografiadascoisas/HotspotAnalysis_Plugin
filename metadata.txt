@@ -1,6 +1,7 @@
 [general]
 name=Hotspot Analysis v4
 qgisMinimumVersion=3.22
+qgisMaximumVersion=4.99
 description=LISA statistics for geographical cluster detection (Getis-Ord Gi*, Local Moran's I, Bivariate Local Moran's I) — Processing framework, QGIS 3.22+ and 4.x.
 version=4.0.0
 author=Abimael Cereda Junior
