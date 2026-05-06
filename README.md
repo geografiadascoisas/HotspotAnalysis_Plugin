@@ -11,10 +11,50 @@ Issue tracker: https://github.com/geografiadascoisas/HotSpotAnalysis_Plugin/issu
 
 ---
 
+## Overview
+
+Hotspot Analysis v4 is a QGIS plugin implementing **Local Indicators of Spatial Association (LISA)** using the Python libraries **libpysal** and **esda**. Version 4 migrates the plugin to the **QGIS Processing framework**, making all three algorithms available in the Processing Toolbox, the Graphical Modeler and batch processing - with no custom dialog required.
+
+The plugin is designed to be **scientific and didactic**: all methodological choices are exposed as explicit parameters and this documentation explains the reasoning behind each one, aligned with the original references and GeoDa conventions.
+
+Available in the QGIS **Processing Toolbox** under *Hotspot Analysis v4 → LISA*:
+
+- **Getis-Ord Gi\***  
+  Detection of significant hotspots (high–high clusters) and coldspots (low–low clusters).
+
+- **Local Moran's I (univariate)**  
+  Identification of local autocorrelation and spatial cluster/outlier patterns (HH, LL, HL, LH).
+
+- **Local Moran's I (bivariate)**  
+  Measures cross-variable local association between two spatial attributes.
+
+The output layer includes:
+
+- `Z_score`  
+- `p_value`  
+- `q_value` (for Moran's I only)  
+- All original attributes preserved
+
+---
+
+## NEW in Version 4.0
+
+- **Processing framework migration**: all three algorithms are now available in the QGIS Processing Toolbox, Graphical Modeler and Python console (`processing.run(…)`). No custom dialog.
+- **Qt5/Qt6 compatible** via `qgis.PyQt` - works on QGIS 3.22+ and QGIS 4.x.
+- **Scientific corrections** aligned with GeoDa and original references:
+  - `G_Local` now uses `star=True` - the correct definition of Gi* (previously missing, causing Gi to be computed instead)
+  - p-values use `1 − Φ(|Z|)` - one-tailed with absolute Z-score, consistent with Anselin (1995) and Ord & Getis (1995). The esda default `1 − Φ(Z)` (signed, directional) caused cold spots to be invisible; fixed. Optional **Two-tailed p-value** checkbox for v1/v3.x compatibility
+- **New user parameters**:
+  - **Binary vs continuous weights** (`binary=True/False`) - choose between binary (0/1) neighbourhood weights or continuous distance-decay weights
+  - **Distance metric** - Euclidean (p=2, standard) or Manhattan (p=1, original danioxoli default)
+- **Automatic threshold detection** using maximum nearest-neighbour distance (KDTree-based), applied when no threshold is provided
+- Full scientific documentation in this README with formulas, parameter rationale and GeoDa alignment table
+
+---
+
 ## About this plugin
 
-I am [Abimael Cereda Junior](https://www.linkedin.com/in/abimael-cereda-junior/)
-- geographer, MSc and PhD in Urban Engineering, senior researcher at UnB and
+I am [Abimael Cereda Junior](https://www.linkedin.com/in/abimael-cereda-junior/) - geographer, MSc and PhD in Urban Engineering, senior researcher at UnB and
 professor in post-graduate programs. For 25 years I have been building Geographic
 Intelligence operations: turning geoinformation into strategic decision-making
 tools for clients like the World Bank, Sabesp, CPFL, Brazil's Ministry of
@@ -67,47 +107,6 @@ current or future version of QGIS, scientifically sound and open to everyone.
 
 If you find errors or have questions, please open an issue on GitHub -
 methodological questions especially welcome.
-
----
-
-## Overview
-
-Hotspot Analysis v4 is a QGIS plugin implementing **Local Indicators of Spatial Association (LISA)** using the Python libraries **libpysal** and **esda**. Version 4 migrates the plugin to the **QGIS Processing framework**, making all three algorithms available in the Processing Toolbox, the Graphical Modeler and batch processing - with no custom dialog required.
-
-The plugin is designed to be **scientific and didactic**: all methodological choices are exposed as explicit parameters and this documentation explains the reasoning behind each one, aligned with the original references and GeoDa conventions.
-
-Available in the QGIS **Processing Toolbox** under *Hotspot Analysis v4 → LISA*:
-
-- **Getis-Ord Gi\***  
-  Detection of significant hotspots (high–high clusters) and coldspots (low–low clusters).
-
-- **Local Moran's I (univariate)**  
-  Identification of local autocorrelation and spatial cluster/outlier patterns (HH, LL, HL, LH).
-
-- **Local Moran's I (bivariate)**  
-  Measures cross-variable local association between two spatial attributes.
-
-The output layer includes:
-
-- `Z_score`  
-- `p_value`  
-- `q_value` (for Moran's I only)  
-- All original attributes preserved
-
----
-
-## NEW in Version 4.0
-
-- **Processing framework migration**: all three algorithms are now available in the QGIS Processing Toolbox, Graphical Modeler and Python console (`processing.run(…)`). No custom dialog.
-- **Qt5/Qt6 compatible** via `qgis.PyQt` - works on QGIS 3.22+ and QGIS 4.x.
-- **Scientific corrections** aligned with GeoDa and original references:
-  - `G_Local` now uses `star=True` - the correct definition of Gi* (previously missing, causing Gi to be computed instead)
-  - p-values use `1 − Φ(|Z|)` - one-tailed with absolute Z-score, consistent with Anselin (1995) and Ord & Getis (1995). The esda default `1 − Φ(Z)` (signed, directional) caused cold spots to be invisible; fixed. Optional **Two-tailed p-value** checkbox for v1/v3.x compatibility
-- **New user parameters**:
-  - **Binary vs continuous weights** (`binary=True/False`) - choose between binary (0/1) neighbourhood weights or continuous distance-decay weights
-  - **Distance metric** - Euclidean (p=2, standard) or Manhattan (p=1, original danioxoli default)
-- **Automatic threshold detection** using maximum nearest-neighbour distance (KDTree-based), applied when no threshold is provided
-- Full scientific documentation in this README with formulas, parameter rationale and GeoDa alignment table
 
 ---
 
