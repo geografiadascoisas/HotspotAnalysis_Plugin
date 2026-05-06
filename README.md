@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="hotspot.png" alt="Hotspot Analysis Plugin" width="80">
+</p>
+
 # Hotspot Analysis v4: Geographical cluster detection
 
 Modernized and maintained by **Abimael Cereda Junior**  
@@ -7,11 +11,70 @@ Issue tracker: https://github.com/geografiadascoisas/HotSpotAnalysis_Plugin/issu
 
 ---
 
+## About this plugin
+
+I am [Abimael Cereda Junior](https://www.linkedin.com/in/abimael-cereda-junior/)
+- geographer, MSc and PhD in Urban Engineering, senior researcher at UnB and
+professor in post-graduate programs. For 25 years I have been building Geographic
+Intelligence operations: turning geoinformation into strategic decision-making
+tools for clients like the World Bank, Sabesp, CPFL, Brazil's Ministry of
+Social Development and UNDP. I founded
+[Geografia das Coisas®](https://geografiadascoisas.com.br).
+
+I say all this not to boast, but because it matters for understanding this
+plugin: my background is spatial analysis and decision-making, not software
+engineering. I have never thought of myself as a developer.
+
+That said - I have been writing code since before my undergraduate degree.
+Basic on a TK-85, Pascal and whatever came after. So perhaps a more honest
+description is: I have always been a geographer who codes, even if I never
+wore the developer hat officially.
+
+This plugin has always been more about methodology than software. I use it in
+my classes and consulting work to teach spatial statistics in a transparent,
+reproducible way. For years I kept a private adapted version for teaching -
+one that worked, but that I never felt confident enough to publish, partly
+because I never thought of myself as a real developer.
+
+The original plugin was developed by Daniele Oxoli et al. at Politecnico di
+Milano in 2017. Over time, updates to Python libraries and QGIS itself broke
+several parts of it - the plugin simply stopped working on QGIS 3.22 and
+above. **Version 3** was a public release to bring it back to life: fixing
+library compatibility, interface errors and basic stability. The calculations
+themselves were not touched.
+
+But something had always bothered me: even when it worked, the results did not
+consistently match those from reference implementations. That methodological
+discrepancy was the real motivation for going further.
+
+**Version 4**, released in 2026 with the support of Claude Code, is a full
+methodological revision - and the one that finally felt worth the effort of
+doing properly. The calculations were reviewed step by step against Anselin's
+LISA framework, correcting a silent error in the Gi* statistic (`star=True`
+was missing) and fixing the p-value formula for cold spots. The plugin now
+aligns with current community best practices and produces results consistent
+with reference implementations.
+
+The work with Claude Code accelerated the technical side considerably, but
+always under close methodological oversight. Every calculation, every parameter
+choice, every design decision was reviewed and validated by me. AI can help
+write and organize code; it cannot replace the domain knowledge required to get
+spatial statistics right.
+
+The motivation was never just to rewrite the code. It was to make these tools
+genuinely available to the whole community - working reliably across any
+current or future version of QGIS, scientifically sound and open to everyone.
+
+If you find errors or have questions, please open an issue on GitHub -
+methodological questions especially welcome.
+
+---
+
 ## Overview
 
-Hotspot Analysis v4 is a QGIS plugin implementing **Local Indicators of Spatial Association (LISA)** using the Python libraries **libpysal** and **esda**. Version 4 migrates the plugin to the **QGIS Processing framework**, making all three algorithms available in the Processing Toolbox, the Graphical Modeler, and batch processing — with no custom dialog required.
+Hotspot Analysis v4 is a QGIS plugin implementing **Local Indicators of Spatial Association (LISA)** using the Python libraries **libpysal** and **esda**. Version 4 migrates the plugin to the **QGIS Processing framework**, making all three algorithms available in the Processing Toolbox, the Graphical Modeler and batch processing - with no custom dialog required.
 
-The plugin is designed to be **scientific and didactic**: all methodological choices are exposed as explicit parameters, and this documentation explains the reasoning behind each one, aligned with the original references and GeoDa conventions.
+The plugin is designed to be **scientific and didactic**: all methodological choices are exposed as explicit parameters and this documentation explains the reasoning behind each one, aligned with the original references and GeoDa conventions.
 
 Available in the QGIS **Processing Toolbox** under *Hotspot Analysis v4 → LISA*:
 
@@ -35,16 +98,16 @@ The output layer includes:
 
 ## NEW in Version 4.0
 
-- **Processing framework migration**: all three algorithms are now available in the QGIS Processing Toolbox, Graphical Modeler, and Python console (`processing.run(…)`). No custom dialog.
-- **Qt5/Qt6 compatible** via `qgis.PyQt` — works on QGIS 3.22+ and QGIS 4.x.
+- **Processing framework migration**: all three algorithms are now available in the QGIS Processing Toolbox, Graphical Modeler and Python console (`processing.run(…)`). No custom dialog.
+- **Qt5/Qt6 compatible** via `qgis.PyQt` - works on QGIS 3.22+ and QGIS 4.x.
 - **Scientific corrections** aligned with GeoDa and original references:
-  - `G_Local` now uses `star=True` — the correct definition of Gi* (previously missing, causing Gi to be computed instead)
-  - p-values use `1 − Φ(|Z|)` — one-tailed with absolute Z-score, consistent with Anselin (1995) and Ord & Getis (1995). The esda default `1 − Φ(Z)` (signed, directional) caused cold spots to be invisible; fixed. Optional **Two-tailed p-value** checkbox for v1/v3.x compatibility
+  - `G_Local` now uses `star=True` - the correct definition of Gi* (previously missing, causing Gi to be computed instead)
+  - p-values use `1 − Φ(|Z|)` - one-tailed with absolute Z-score, consistent with Anselin (1995) and Ord & Getis (1995). The esda default `1 − Φ(Z)` (signed, directional) caused cold spots to be invisible; fixed. Optional **Two-tailed p-value** checkbox for v1/v3.x compatibility
 - **New user parameters**:
-  - **Binary vs continuous weights** (`binary=True/False`) — choose between binary (0/1) neighbourhood weights or continuous distance-decay weights
-  - **Distance metric** — Euclidean (p=2, standard) or Manhattan (p=1, original danioxoli default)
+  - **Binary vs continuous weights** (`binary=True/False`) - choose between binary (0/1) neighbourhood weights or continuous distance-decay weights
+  - **Distance metric** - Euclidean (p=2, standard) or Manhattan (p=1, original danioxoli default)
 - **Automatic threshold detection** using maximum nearest-neighbour distance (KDTree-based), applied when no threshold is provided
-- Full scientific documentation in this README with formulas, parameter rationale, and GeoDa alignment table
+- Full scientific documentation in this README with formulas, parameter rationale and GeoDa alignment table
 
 ---
 
@@ -128,7 +191,7 @@ esda
 
 If these libraries are missing, the plugin will show a dependency error when any algorithm is run.
 
-#### Windows (QGIS 4.x — OSGeo4W Shell)
+#### Windows (QGIS 4.x - OSGeo4W Shell)
 ```
 python -m pip install libpysal esda
 ```
@@ -154,10 +217,10 @@ python3 -m pip install libpysal esda
 
 QGIS 4.x ships with **NumPy 2.4+**. If `numba` is installed in your Python
 environment at a version that only supports NumPy ≤ 2.3, `libpysal` will fail
-to load (even though you did not ask for numba — `libpysal` imports it
+to load (even though you did not ask for numba - `libpysal` imports it
 internally via `Gabriel` weights).
 
-**Fix — open the OSGeo4W Shell and run:**
+**Fix - open the OSGeo4W Shell and run:**
 ```
 python -m pip install --upgrade numba
 ```
@@ -211,7 +274,7 @@ Gi* = ────────────────────────�
       s × √[ (n Σ_j w*²_ij − (Σ_j w*_ij)²) / (n−1) ]
 ```
 
-where `w*_ij` are the spatial weights **including the diagonal** (location i is its own neighbour), `x̄` is the global mean, `s` is the global standard deviation, and `n` is the number of observations.
+where `w*_ij` are the spatial weights **including the diagonal** (location i is its own neighbour), `x̄` is the global mean, `s` is the global standard deviation and `n` is the number of observations.
 
 **Gi vs Gi\*:** The non-starred Gi excludes location i from its own weighted sum (zero diagonal). The Gi\* includes it (`star=True`). This plugin always computes **Gi\***, which is the form implemented in GeoDa and ArcGIS and the form most commonly reported in the literature.
 
@@ -252,7 +315,7 @@ Measures the association between variable X at location i and the **spatial lag 
 I_i^B = z_x_i Σ_j w_ij z_y_j
 ```
 
-**Methodological note — what this statistic does NOT measure:**
+**Methodological note - what this statistic does NOT measure:**
 
 The Bivariate Local Moran does **not** measure whether X and Y co-occur at the same location i. It measures whether a high (or low) value of X at i is surrounded by high (or low) values of Y at its neighbours. Always complement the bivariate analysis with univariate analyses of each variable. This limitation is explicitly noted in Anselin et al. (2002) and in GeoDa's documentation.
 
@@ -264,9 +327,9 @@ The Bivariate Local Moran does **not** measure whether X and Y co-occur at the s
 
 | Option | When to use |
 |---|---|
-| **Distance Band** | Point layers — all points within the threshold distance are neighbours |
-| **KNN** | Point layers — each point has exactly K neighbours (useful when density is uneven) |
-| **Queen's Contiguity** | Polygon layers — polygons sharing an edge or a vertex are neighbours |
+| **Distance Band** | Point layers - all points within the threshold distance are neighbours |
+| **KNN** | Point layers - each point has exactly K neighbours (useful when density is uneven) |
+| **Queen's Contiguity** | Polygon layers - polygons sharing an edge or a vertex are neighbours |
 
 Queen's Contiguity is automatically selected for polygon layers regardless of the user's choice.
 
@@ -285,7 +348,7 @@ Tests all thresholds between *Minimum distance* and *Maximum distance* at the gi
 | **Checked (binary=True)** | All neighbours within the threshold receive weight 1; all others receive 0. GeoDa default for distance bands. |
 | **Unchecked (binary=False)** | Weights decay with distance (continuous). More faithful to the original theoretical formulation of Getis & Ord (1992). The original danioxoli plugin used this setting. |
 
-Both options are scientifically valid — the choice should reflect the research hypothesis.
+Both options are scientifically valid - the choice should reflect the research hypothesis.
 
 ### Distance metric
 
@@ -335,7 +398,7 @@ Using the raw signed Z in `1 − Φ(Z)` gives a **directional** p-value:
 - For hot spots (Z > 0): `1 − Φ(Z)` → small → correctly identified as significant
 - For cold spots (Z < 0): `1 − Φ(Z)` → close to 1 → cold spots **never appear significant**
 
-This is methodologically wrong: a cold spot at Z = −2.58 is just as statistically significant as a hot spot at Z = +2.58. Using `1 − Φ(|Z|)` treats both directions correctly and symmetrically. The **direction** of the cluster (hot or cold) is already encoded in the sign of the Z_score — p_value is the measure of significance, not of direction.
+This is methodologically wrong: a cold spot at Z = −2.58 is just as statistically significant as a hot spot at Z = +2.58. Using `1 − Φ(|Z|)` treats both directions correctly and symmetrically. The **direction** of the cluster (hot or cold) is already encoded in the sign of the Z_score - p_value is the measure of significance, not of direction.
 
 The esda library returns `1 − Φ(Z)` (signed) for `G_Local.p_norm`, which incorrectly renders cold spots invisible in the default output layer style. This plugin overrides that calculation to use `1 − Φ(|Z|)` consistently for all three statistics.
 
@@ -365,7 +428,7 @@ p_two = min(2 × p, 1.0)
 
 This replicates v3.x/v1 plugin behavior and also matches the convention used by a major commercial GIS implementation. Use this option to compare outputs with v3.x results or with external analyses computed with two-tailed p-values. One-tailed remains the recommended default.
 
-> **Note for users of v3.x:** v3.x applied a two-tailed conversion using the *signed* Z-score (`p_norm * 2`, where `p_norm = 1 − Φ(Z)`), which caused cold spots to receive p ≈ 1.0 and disappear from the output style. v4.0 corrects this: uses `1 − Φ(|Z|)` so hot and cold spots are treated symmetrically, and classifies features by p_value (primary) + sign(Z_score) (direction), aligned with GeoDa and Anselin (1995).
+> **Note for users of v3.x:** v3.x applied a two-tailed conversion using the *signed* Z-score (`p_norm * 2`, where `p_norm = 1 − Φ(Z)`), which caused cold spots to receive p ≈ 1.0 and disappear from the output style. v4.0 corrects this: uses `1 − Φ(|Z|)` so hot and cold spots are treated symmetrically and classifies features by p_value (primary) + sign(Z_score) (direction), aligned with GeoDa and Anselin (1995).
 
 ---
 
@@ -385,9 +448,9 @@ The libpysal/esda library is maintained by the **PySAL developers network**, whi
 
 ---
 
-## Implementation Audit: v1, GeoDa, ArcGIS, and the Literature
+## Implementation Audit: v1, GeoDa, ArcGIS and the Literature
 
-This section documents a systematic comparison of implementation choices across four reference points: the original danioxoli plugin (v1/v3.x), GeoDa 1.22, ArcGIS Pro 3.x, and the scientific literature (Anselin 1995; Ord & Getis 1995). The audit drove all corrections introduced in v4 and is provided here so that results can be independently reproduced and compared.
+This section documents a systematic comparison of implementation choices across four reference points: the original danioxoli plugin (v1/v3.x), GeoDa 1.22, ArcGIS Pro 3.x and the scientific literature (Anselin 1995; Ord & Getis 1995). The audit drove all corrections introduced in v4 and is provided here so that results can be independently reproduced and compared.
 
 ---
 
@@ -401,7 +464,7 @@ This section documents a systematic comparison of implementation choices across 
 | Weight type default | Binary [1] | `binary=False` (continuous) | `binary=True` ✓ | Binary | `binary=True` ✓ (configurable) |
 | Distance metric | Euclidean | Manhattan (p=1) | Euclidean | Euclidean | Euclidean ✓ (configurable) |
 | Map classification | p_value primary [1][2] | Z-score ranges only | p_value primary ✓ | Z-score ranges (≡ two-tailed p) | p_value primary ✓ |
-| Output field names | — | `Z-score`, `p-value` (hyphens) ✗ | — | — | `Z_score`, `p_value` (underscores) ✓ |
+| Output field names | - | `Z-score`, `p-value` (hyphens) ✗ | - | - | `Z_score`, `p_value` (underscores) ✓ |
 
 For Local Moran's I the same p-value and classification principles apply. The `q_value` quadrant encoding (1=HH, 2=LH, 3=LL, 4=HL) matches GeoDa and Anselin (1995) in all versions.
 
@@ -409,7 +472,7 @@ For Local Moran's I the same p-value and classification principles apply. The `q
 
 #### Note on `binary=False` (continuous weights)
 
-The original plugin used `DistanceBand(coords, threshold=d, binary=False)`, applying distance-decay weights instead of the binary 0/1 weights used by GeoDa and most published applications. This is not incorrect — continuous weights are consistent with the theoretical formulation of Getis & Ord (1992) — but it diverges from the GeoDa default without documentation and produces different numerical results. In v4, `binary=True` is the default (GeoDa convention) but the choice is exposed as an explicit parameter so users can replicate either behavior.
+The original plugin used `DistanceBand(coords, threshold=d, binary=False)`, applying distance-decay weights instead of the binary 0/1 weights used by GeoDa and most published applications. This is not incorrect - continuous weights are consistent with the theoretical formulation of Getis & Ord (1992) - but it diverges from the GeoDa default without documentation and produces different numerical results. In v4, `binary=True` is the default (GeoDa convention) but the choice is exposed as an explicit parameter so users can replicate either behavior.
 
 ---
 
@@ -447,17 +510,17 @@ The **Two-tailed p-value** option in v4 (`p × 2`) replicates the ArcGIS/v3.x be
 
 ### References for this audit
 
-[1] Ord, J.K. & Getis, A. (1995). *Local Spatial Autocorrelation Statistics: Distributional Issues and an Application*. Geographical Analysis, 27(4), 286–306. — defines Gi*, p-value as `1 − Φ(|Z|)`, and binary distance-band weights as the standard form.
+[1] Ord, J.K. & Getis, A. (1995). *Local Spatial Autocorrelation Statistics: Distributional Issues and an Application*. Geographical Analysis, 27(4), 286–306. - defines Gi*, p-value as `1 − Φ(|Z|)` and binary distance-band weights as the standard form.
 
-[2] Anselin, L. (1995). *Local Indicators of Spatial Association — LISA*. Geographical Analysis, 27(2), 93–115. — defines significance classification by p-value threshold and cluster direction by sign of the local statistic.
+[2] Anselin, L. (1995). *Local Indicators of Spatial Association - LISA*. Geographical Analysis, 27(2), 93–115. - defines significance classification by p-value threshold and cluster direction by sign of the local statistic.
 
-[3] GeoDa 1.22 documentation: https://geodacenter.github.io/workbook/6a_local_auto/lab6a.html — demonstrates p_value-primary classification with `1 − Φ(|Z|)`.
+[3] GeoDa 1.22 documentation: https://geodacenter.github.io/workbook/6a_local_auto/lab6a.html - demonstrates p_value-primary classification with `1 − Φ(|Z|)`.
 
-[4] ArcGIS Pro 3.x documentation — *Hot Spot Analysis (Getis-Ord Gi*)* — uses two-tailed p and classifies by Z_score ranges. Numerically equivalent to one-tailed classification under the normal approximation but diverges for permutation p-values.
+[4] ArcGIS Pro 3.x documentation - *Hot Spot Analysis (Getis-Ord Gi*)* - uses two-tailed p and classifies by Z_score ranges. Numerically equivalent to one-tailed classification under the normal approximation but diverges for permutation p-values.
 
-[5] Oxoli, D., Prestifilippo, G., Bertocchi, D., Zurbaràn, M. (2017). *Enabling spatial autocorrelation mapping in QGIS: The Hotspot Analysis Plugin*. GEAM, 151(2), 45–50. — original publication of the danioxoli plugin (v1).
+[5] Oxoli, D., Prestifilippo, G., Bertocchi, D., Zurbaràn, M. (2017). *Enabling spatial autocorrelation mapping in QGIS: The Hotspot Analysis Plugin*. GEAM, 151(2), 45–50. - original publication of the danioxoli plugin (v1).
 
-[6] esda library — `G_Local.p_norm` returns `1 − Φ(Z)` with signed Z (directional). This plugin overrides it with `scipy.stats.norm.sf(np.abs(z_arr))` to use `1 − Φ(|Z|)` as in [1][2][3].
+[6] esda library - `G_Local.p_norm` returns `1 − Φ(Z)` with signed Z (directional). This plugin overrides it with `scipy.stats.norm.sf(np.abs(z_arr))` to use `1 − Φ(|Z|)` as in [1][2][3].
 
 ---
 
@@ -476,7 +539,7 @@ The **Two-tailed p-value** option in v4 (`p × 2`) replicates the ArcGIS/v3.x be
 **Statistical Foundations**  
 - Getis, A.; Ord, J.K. (1992). *The Analysis of Spatial Association by Use of Distance Statistics*. Geographical Analysis, 24(3), 189–206.  
 - Getis, A.; Ord, J.K. (1996). *Local Spatial Statistics: An Overview*. In Longley & Batty (Eds.), Spatial Analysis: Modelling in a GIS Environment.  
-- Anselin, L. (1995). *Local Indicators of Spatial Association — LISA*. Geographical Analysis, 27(2), 93–115.  
+- Anselin, L. (1995). *Local Indicators of Spatial Association - LISA*. Geographical Analysis, 27(2), 93–115.  
 - Wartenberg, D. (1985). *Multivariate Spatial Correlation: A Method for Exploratory Geographical Analysis*. Geographical Analysis, 17(4), 263–283.  
 - Anselin, L., Syabri, I. & Smirnov, O. (2002). *Visualizing Multivariate Spatial Correlation with Dynamically Linked Windows*. In Anselin & Rey (Eds.), New Tools for Spatial Data Analysis. CSISS.  
 
@@ -514,8 +577,8 @@ Latest presentation available here: http://www.slideshare.net/danieleoxoli/hotsp
 
 _The Hotspot Analysis plugin is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation._
 
-Copyright © 2026 Abimael Cereda Junior — [Geografia das Coisas]  
-Copyright © 2021 Daniele Oxoli — [Politecnico Di Milano] | Gabriele Prestifilippo — [GISdevio]
+Copyright © 2026 Abimael Cereda Junior - [Geografia das Coisas]  
+Copyright © 2021 Daniele Oxoli - [Politecnico Di Milano] | Gabriele Prestifilippo - [GISdevio]
 
 E-mail (maintainer): ceredajunior@geografiadascoisas.com.br  
 E-mail (original author): daniele.oxoli@polimi.it
