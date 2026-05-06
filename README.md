@@ -52,7 +52,7 @@ The output layer includes:
 - **Processing framework migration**: all three algorithms are now available in the QGIS Processing Toolbox, Graphical Modeler and Python console (`processing.run(…)`). No custom dialog.
 - **Qt5/Qt6 compatible** via `qgis.PyQt` - works on QGIS 3.22+ and QGIS 4.x.
 - **Scientific corrections** aligned with GeoDa and original references:
-  - `G_Local` forces uses `star=True` - the correct definition of Gi* (some issues before, causing Gi to be computed instead)
+  - `G_Local` now uses `star=True` - the correct definition of Gi* (previously missing, causing Gi to be computed instead)
   - p-values use `1 − Φ(|Z|)` - one-tailed with absolute Z-score, consistent with Anselin (1995) and Ord & Getis (1995). The esda default `1 − Φ(Z)` (signed, directional) caused cold spots to be invisible; fixed. Optional **Two-tailed p-value** checkbox for v1/v3.x compatibility
 - **New user parameters**:
   - **Binary vs continuous weights** (`binary=True/False`) - choose between binary (0/1) neighbourhood weights or continuous distance-decay weights
@@ -91,18 +91,19 @@ Milano in 2017. Over time, updates to Python libraries and QGIS itself broke
 several parts of it - the plugin simply stopped working on QGIS 3.22 and
 above. **Version 3** was a public release to bring it back to life: fixing
 library compatibility, interface errors and basic stability. The calculations
-themselves were - almost - not touched.
+themselves were not touched.
 
 But something had always bothered me: even when it worked, the results did not
-consistently match those from others implementations, like in GeoDa and ArcGIS. 
-That methodological difference was the real motivation for going further.
+consistently match those from reference implementations. That methodological
+discrepancy was the real motivation for going further.
 
 **Version 4**, released in 2026 with the support of Claude Code, is a full
 methodological revision - and the one that finally felt worth the effort of
-publish. The calculations were reviewed step by step against Anselin's
-LISA framework, The plugin now aligns with current community best practices 
-and produces results consistent with reference implementations, as well as
-the possibility of comparison with the original versions of this plugin (v1).
+doing properly. The calculations were reviewed step by step against Anselin's
+LISA framework, correcting a silent error in the Gi* statistic (`star=True`
+was missing) and fixing the p-value formula for cold spots. The plugin now
+aligns with current community best practices and produces results consistent
+with reference implementations.
 
 The work with Claude Code accelerated the technical side considerably, but
 always under close methodological oversight. Every calculation, every parameter
